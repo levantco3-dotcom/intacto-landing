@@ -1,0 +1,21 @@
+/* ==========================================================================
+   INTACTO — header.css
+   Header con logo, sticky debajo del top-bar
+   ========================================================================== */
+
+.site-header {
+  height: 64px;
+  background-color: var(--crema);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: sticky;
+  top: 38px;
+  z-index: 90;
+}
+
+.site-header__logo {
+  height: 44px;
+  width: auto;
+  border-radius: 50%;
+}

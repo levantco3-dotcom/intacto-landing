@@ -1,0 +1,169 @@
+/* ==========================================================================
+   INTACTO — hero.css
+   Sección 1: Hero
+   ========================================================================== */
+
+.hero {
+  background-color: var(--crema);
+}
+
+.hero__media {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+}
+
+.hero__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hero__content {
+  padding: 40px 24px 48px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.hero__headline {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(2.5rem, 8vw, 5rem);
+  letter-spacing: 0.01em;
+  color: var(--carbon);
+}
+
+.hero__headline .highlight {
+  font-size: inherit;
+  font-weight: inherit;
+  letter-spacing: 0.05em;
+}
+
+.hero__subhead {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  color: var(--carbon-suave);
+  margin-top: 16px;
+  max-width: 32ch;
+}
+
+.hero__subhead strong {
+  font-weight: 700;
+  color: inherit;
+}
+
+.hero__divider {
+  width: 40px;
+  height: 2px;
+  background-color: var(--cobre);
+  border: none;
+  margin: 24px 0 20px;
+  align-self: center;
+}
+
+.hero__trustbar {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  cursor: pointer;
+}
+
+.hero__stars {
+  color: var(--cobre);
+  font-size: 0.95rem;
+  letter-spacing: 1px;
+}
+
+.hero__trustbar-text {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 0.95rem;
+  color: var(--carbon);
+}
+
+.hero__trustbar:hover .hero__trustbar-text {
+  text-decoration: underline;
+  text-decoration-color: var(--cobre);
+}
+
+.hero__care-note {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--carbon-suave);
+  margin-bottom: 12px;
+}
+
+.hero__urgency {
+  font-family: var(--font-editorial);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 0.95rem;
+  color: var(--cobre-oscuro);
+  margin-top: 20px;
+  margin-bottom: 28px;
+}
+
+.hero__cta-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.hero__cta-note {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 0.85rem;
+  letter-spacing: 0.03em;
+  color: var(--cobre-oscuro);
+  margin-top: 14px;
+}
+
+.hero__cta {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 1.0625rem;
+  color: var(--blanco-calido);
+  background-color: var(--cobre);
+  padding: 18px 40px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.hero__cta:hover,
+.hero__cta:focus-visible {
+  background-color: var(--cobre-oscuro);
+}
+
+@media (min-width: 768px) {
+  .hero {
+    display: flex;
+    min-height: 100vh;
+  }
+
+  .hero__media {
+    width: 55vw;
+    aspect-ratio: auto;
+    height: 100vh;
+    flex-shrink: 0;
+  }
+
+  .hero__content {
+    flex: 1;
+    justify-content: center;
+    padding: 40px 64px;
+  }
+
+  .hero__subhead {
+    font-size: 1.125rem;
+  }
+
+  .hero__divider {
+    align-self: flex-start;
+  }
+}

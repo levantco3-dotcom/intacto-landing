@@ -1,0 +1,52 @@
+/* ==========================================================================
+   INTACTO — top-bar.css
+   Banner deslizante superior
+   ========================================================================== */
+
+.top-bar {
+  height: 38px;
+  background-color: var(--carbon);
+  overflow: hidden;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.top-bar__track {
+  display: flex;
+  width: max-content;
+  height: 100%;
+  align-items: center;
+  animation: top-bar-scroll 40s linear infinite;
+}
+
+.top-bar:hover .top-bar__track {
+  animation-play-state: paused;
+}
+
+.top-bar__item {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--crema);
+  padding: 0 12px;
+}
+
+.top-bar__separator {
+  color: var(--cobre);
+  padding: 0 12px;
+}
+
+@keyframes top-bar-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}

@@ -1,0 +1,169 @@
+/* ==========================================================================
+   INTACTO — demo.css
+   Sección: Míralo en acción
+   ========================================================================== */
+
+.demo {
+  background-color: var(--crema);
+  padding: 56px 24px;
+}
+
+.demo__header {
+  text-align: center;
+  max-width: 480px;
+  margin: 0 auto 40px;
+}
+
+.demo__eyebrow {
+  display: block;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  color: var(--cobre);
+  margin-bottom: 10px;
+}
+
+.demo__title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  color: var(--carbon);
+}
+
+.demo__subhead {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 1.0625rem;
+  color: var(--carbon-suave);
+  margin-top: 12px;
+}
+
+/* Video placeholder */
+
+.video-placeholder {
+  width: 100%;
+  max-width: 380px;
+  aspect-ratio: 9 / 16;
+  margin: 0 auto;
+  background-color: var(--carbon);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.video-placeholder__play {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background-color: rgba(250, 247, 243, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.video-placeholder__play-icon {
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 14px 0 14px 22px;
+  border-color: transparent transparent transparent var(--blanco-calido);
+  margin-left: 4px;
+}
+
+.video-placeholder__label {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: var(--crema);
+}
+
+/* Antes / después */
+
+.demo__materials {
+  margin-top: 56px;
+}
+
+.demo__materials-title {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 1.375rem;
+  color: var(--carbon);
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.material-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  max-width: 380px;
+  margin: 0 auto;
+}
+
+.material-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.material-card__placeholder {
+  aspect-ratio: 4 / 3;
+  border-radius: 12px;
+  overflow: hidden;
+  background-color: var(--crema-oscuro);
+  display: flex;
+  position: relative;
+}
+
+.material-card__half {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  color: var(--carbon-suave);
+}
+
+.material-card__placeholder::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 2px;
+  height: 100%;
+  background-color: var(--cobre);
+  transform: translateX(-50%);
+}
+
+.material-card__name {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 1.0625rem;
+  color: var(--carbon);
+  text-align: center;
+}
+
+.demo__footnote {
+  font-family: var(--font-editorial);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 1.0625rem;
+  color: var(--carbon-suave);
+  text-align: center;
+  margin-top: 40px;
+}
+
+@media (min-width: 768px) {
+  .material-grid {
+    grid-template-columns: repeat(3, 1fr);
+    max-width: 900px;
+    gap: 32px;
+  }
+}

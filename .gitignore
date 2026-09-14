@@ -1,0 +1,31 @@
+# Variables de entorno y secretos
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# Dependencias (por si en el futuro se usa algún tooling con npm)
+node_modules/
+package-lock.json
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editores
+.vscode/
+.idea/
+*.swp
+
+# Vercel
+.vercel
+
+# Logs
+*.log
+npm-debug.log*
+
+# Archivos temporales
+*.tmp
+.cache/
