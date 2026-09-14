@@ -1,0 +1,173 @@
+/* ==========================================================================
+   INTACTO — checkout.css
+   Sección 10: Formulario COD
+   ========================================================================== */
+
+.checkout {
+  background-color: var(--blanco-calido);
+  padding: 56px 24px 80px;
+  scroll-margin-top: 24px;
+}
+
+.checkout__header {
+  text-align: center;
+  max-width: 480px;
+  margin: 0 auto 32px;
+}
+
+.checkout__eyebrow {
+  display: block;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  color: var(--cobre);
+  margin-bottom: 10px;
+}
+
+.checkout__title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  color: var(--carbon);
+}
+
+.checkout__subhead {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 1.0625rem;
+  color: var(--carbon-suave);
+  margin-top: 12px;
+}
+
+.checkout__price {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: var(--cobre-oscuro);
+  margin-top: 16px;
+}
+
+.checkout__form {
+  max-width: 420px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.checkout__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.checkout__field label {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 0.875rem;
+  color: var(--carbon);
+}
+
+.checkout__field input {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--carbon);
+  background-color: var(--crema);
+  border: 1px solid var(--crema-oscuro);
+  border-radius: 4px;
+  padding: 14px 16px;
+}
+
+.checkout__field input:focus-visible {
+  outline: 2px solid var(--cobre);
+  outline-offset: 1px;
+}
+
+.checkout__submit {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 1.0625rem;
+  color: var(--blanco-calido);
+  background-color: var(--cobre);
+  padding: 18px 40px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+  margin-top: 8px;
+}
+
+.checkout__submit:hover,
+.checkout__submit:focus-visible {
+  background-color: var(--cobre-oscuro);
+}
+
+.checkout__submit:disabled {
+  background-color: var(--carbon-suave);
+  cursor: not-allowed;
+}
+
+.checkout__note {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 0.85rem;
+  color: var(--carbon-suave);
+  text-align: center;
+  margin-top: 4px;
+}
+
+.checkout__result {
+  max-width: 420px;
+  margin: 24px auto 0;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  display: none;
+}
+
+.checkout__result[data-state="success"] {
+  display: block;
+  background-color: var(--crema);
+  border: 1px solid var(--cobre);
+}
+
+.checkout__result[data-state="error"] {
+  display: block;
+  background-color: var(--crema);
+  border: 1px solid var(--carbon-suave);
+}
+
+.checkout__result-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.375rem;
+  color: var(--carbon);
+  margin-bottom: 8px;
+}
+
+.checkout__result-text {
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  color: var(--carbon-suave);
+  margin-bottom: 16px;
+}
+
+.checkout__result-whatsapp {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.9375rem;
+  color: var(--blanco-calido);
+  background-color: var(--cobre);
+  padding: 14px 28px;
+  border-radius: 4px;
+}
+
+.checkout__result-whatsapp:hover {
+  background-color: var(--cobre-oscuro);
+}
+
+@media (min-width: 768px) {
+  .checkout {
+    padding: 80px 24px 100px;
+  }
+}

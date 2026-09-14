@@ -29,3 +29,9 @@
   width: 30px;
   height: 30px;
 }
+
+@media (max-width: 767px) {
+  .whatsapp-float {
+    bottom: calc(88px + env(safe-area-inset-bottom));
+  }
+}

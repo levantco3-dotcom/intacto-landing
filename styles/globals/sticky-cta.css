@@ -1,0 +1,48 @@
+/* ==========================================================================
+   INTACTO — sticky-cta.css
+   Barra de CTA fija (móvil)
+   ========================================================================== */
+
+.sticky-cta {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background-color: var(--blanco-calido);
+  border-top: 1px solid var(--crema-oscuro);
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+}
+
+.sticky-cta__button {
+  display: block;
+  width: 100%;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--blanco-calido);
+  background-color: var(--cobre);
+  padding: 16px;
+  border-radius: 4px;
+  text-align: center;
+  transition: background-color 0.2s ease;
+}
+
+.sticky-cta__button:hover,
+.sticky-cta__button:focus-visible {
+  background-color: var(--cobre-oscuro);
+}
+
+body {
+  padding-bottom: 76px;
+}
+
+@media (min-width: 768px) {
+  .sticky-cta {
+    display: none;
+  }
+
+  body {
+    padding-bottom: 0;
+  }
+}
