@@ -12,7 +12,7 @@ module.exports = (req, res) => {
   const redirectUri = `${protocol}://${host}/api/shopify/callback`;
 
   const state = require('crypto').randomBytes(16).toString('hex');
-  const scope = 'read_orders,write_orders';
+  const scope = 'read_orders,write_orders,read_products,read_inventory';
 
   const authorizeUrl =
     `https://${shopDomain}/admin/oauth/authorize` +

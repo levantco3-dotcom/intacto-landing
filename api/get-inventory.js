@@ -37,6 +37,7 @@ module.exports = async (req, res) => {
     const result = await shopifyResponse.json();
 
     if (result.errors || !result.data || !result.data.productVariant) {
+      console.error('get-inventory: respuesta inesperada de Shopify', JSON.stringify(result.errors || result));
       res.status(502).json({ error: 'No se pudo obtener el inventario' });
       return;
     }
@@ -44,6 +45,7 @@ module.exports = async (req, res) => {
     const available = Math.max(0, result.data.productVariant.inventoryQuantity || 0);
     res.status(200).json({ available });
   } catch (err) {
+    console.error('get-inventory: excepción al consultar Shopify', err);
     res.status(500).json({ error: 'No se pudo obtener el inventario' });
   }
 };
