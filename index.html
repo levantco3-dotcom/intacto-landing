@@ -11,10 +11,13 @@
 
   <link rel="stylesheet" href="styles/base.css">
   <link rel="stylesheet" href="styles/globals/top-bar.css">
+  <link rel="stylesheet" href="styles/globals/inventory-banner.css">
   <link rel="stylesheet" href="styles/globals/header.css">
   <link rel="stylesheet" href="styles/globals/whatsapp-float.css">
   <link rel="stylesheet" href="styles/sections/hero.css">
   <link rel="stylesheet" href="styles/sections/demo.css">
+  <link rel="stylesheet" href="styles/sections/beneficios.css">
+  <link rel="stylesheet" href="styles/sections/faq.css">
   <link rel="stylesheet" href="styles/sections/checkout.css">
   <link rel="stylesheet" href="styles/globals/sticky-cta.css">
 </head>
@@ -25,6 +28,10 @@
       <span class="top-bar__item">ENVÍO GRATIS A TODA COLOMBIA <span class="top-bar__separator">·</span> PAGO AL RECIBIR <span class="top-bar__separator">·</span> KIT COMPLETO <span class="top-bar__separator">·</span> 2 MINUTOS SIN LAVADORA <span class="top-bar__separator">·</span> GARANTÍA DE 15 DÍAS</span>
       <span class="top-bar__item">ENVÍO GRATIS A TODA COLOMBIA <span class="top-bar__separator">·</span> PAGO AL RECIBIR <span class="top-bar__separator">·</span> KIT COMPLETO <span class="top-bar__separator">·</span> 2 MINUTOS SIN LAVADORA <span class="top-bar__separator">·</span> GARANTÍA DE 15 DÍAS</span>
     </div>
+  </div>
+
+  <div class="inventory-banner" id="inventory-banner" hidden>
+    <p class="inventory-banner__text">Quedan <span class="inventory-banner__count" id="inventory-count"></span> de 100 unidades del primer lote</p>
   </div>
 
   <header class="site-header">
@@ -48,6 +55,11 @@
     <div class="hero__content">
       <h1 class="hero__headline">Que tus tenis se vean como <span class="highlight">EL DÍA 1</span></h1>
       <p class="hero__subhead"><strong>Kit INTACTO</strong> — espuma, spray, cepillo y toalla. 2 minutos, sin lavadora.</p>
+
+      <p class="hero__price">
+        <span class="hero__price-old">$199.900</span>
+        <span class="hero__price-current">$119.900</span>
+      </p>
 
       <hr class="hero__divider">
 
@@ -120,6 +132,129 @@
     </div>
   </section>
 
+  <section class="beneficios">
+    <div class="beneficios__header">
+      <span class="beneficios__eyebrow">PARA TU DÍA A DÍA</span>
+      <h2 class="beneficios__title">Lo que INTACTO hace por ti</h2>
+    </div>
+
+    <div class="beneficios__list">
+      <article class="escena" data-escena="1">
+        <div class="escena__marker">
+          <span class="escena__line escena__line--top" aria-hidden="true"></span>
+          <span class="escena__badge">01</span>
+          <span class="escena__line escena__line--bottom" aria-hidden="true"></span>
+        </div>
+
+        <div class="escena__media">
+          <img src="assets/images/beneficio-01-outfit.jpg.png" alt="Salva tu outfit en 2 minutos" loading="lazy">
+        </div>
+
+        <div class="escena__content">
+          <h3 class="escena__title">Salva tu outfit en 2 minutos</h3>
+          <p class="escena__text">Te alistaste, te perfumaste, saliste — y ahí estaban: tus tenis sucios. Con INTACTO no cancelas el plan.</p>
+        </div>
+      </article>
+
+      <article class="escena escena--destacada" data-escena="2">
+        <div class="escena__marker">
+          <span class="escena__line escena__line--top" aria-hidden="true"></span>
+          <span class="escena__badge">02</span>
+          <span class="escena__line escena__line--bottom" aria-hidden="true"></span>
+        </div>
+
+        <div class="escena__media">
+          <img src="assets/images/beneficio-02-pisada.jpg.png" alt="Cuando te pisan los recién lavados" loading="lazy">
+        </div>
+
+        <div class="escena__content">
+          <h3 class="escena__title">Cuando te pisan los recién lavados</h3>
+          <p class="escena__text">Ese golpe de rabia cuando alguien te pisa apenas los limpiaste. Ahora es solo espuma, cepillo, y 2 minutos. Ni se nota que pasó.</p>
+        </div>
+      </article>
+
+      <article class="escena" data-escena="3">
+        <div class="escena__marker">
+          <span class="escena__line escena__line--top" aria-hidden="true"></span>
+          <span class="escena__badge">03</span>
+          <span class="escena__line escena__line--bottom" aria-hidden="true"></span>
+        </div>
+
+        <div class="escena__media">
+          <img src="assets/images/beneficio-03-pereza.jpg.png" alt="Adiós a la pereza de lavarlos a mano" loading="lazy">
+        </div>
+
+        <div class="escena__content">
+          <h3 class="escena__title">Adiós a la pereza de lavarlos a mano</h3>
+          <p class="escena__text">Nada de agua, jabón Rey ni tallar media hora. Espuma, cepillo, listo.</p>
+        </div>
+      </article>
+
+      <article class="escena" data-escena="4">
+        <div class="escena__marker">
+          <span class="escena__line escena__line--top" aria-hidden="true"></span>
+          <span class="escena__badge">04</span>
+          <span class="escena__line escena__line--bottom" aria-hidden="true"></span>
+        </div>
+
+        <div class="escena__media">
+          <img src="assets/images/beneficio-04-gym.jpg.png" alt="Que tus tenis de entreno no te delaten" loading="lazy">
+        </div>
+
+        <div class="escena__content">
+          <h3 class="escena__title">Que tus tenis de entreno no te delaten</h3>
+          <p class="escena__text">Spray antiolores para que salgan del gym oliendo tan bien como cuando entraron.</p>
+        </div>
+      </article>
+
+      <article class="escena" data-escena="5">
+        <div class="escena__marker">
+          <span class="escena__line escena__line--top" aria-hidden="true"></span>
+          <span class="escena__badge">05</span>
+          <span class="escena__line escena__line--bottom" aria-hidden="true"></span>
+        </div>
+
+        <div class="escena__media">
+          <img src="assets/images/beneficio-05-cabeza-a-pies.jpg.png" alt="De cabeza a pies, siempre listo" loading="lazy">
+        </div>
+
+        <div class="escena__content">
+          <h3 class="escena__title">De cabeza a pies, siempre listo</h3>
+          <p class="escena__text">La ropa puede estar impecable, pero si los tenis fallan, se nota todo. INTACTO cierra el look.</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="faq">
+    <div class="faq__header">
+      <span class="faq__eyebrow">PREGUNTAS FRECUENTES</span>
+      <h2 class="faq__title">Todo lo que necesitas saber</h2>
+    </div>
+
+    <div class="faq__list">
+      <details class="faq__item">
+        <summary class="faq__question">¿Qué es INTACTO?</summary>
+        <p class="faq__answer">Kit completo de limpieza para sneakers: espuma, spray antiolores, cepillo y toalla de microfibra. Todo en un solo kit.</p>
+      </details>
+
+      <details class="faq__item">
+        <summary class="faq__question">¿Qué resultados voy a obtener?</summary>
+        <p class="faq__answer">Tenis limpios como el primer día, sin manchas ni residuos. Funciona en gamuza, tela y cuero.</p>
+      </details>
+
+      <details class="faq__item">
+        <summary class="faq__question">¿Hay garantía?</summary>
+        <p class="faq__answer">Si no te funciona en los primeros 15 días, te devolvemos tu dinero.</p>
+      </details>
+
+      <details class="faq__item">
+        <summary class="faq__question">¿Cómo se usa?</summary>
+        <p class="faq__answer">Aplica la espuma, cepilla, seca con la toalla. 2 minutos, sin lavadora.</p>
+      </details>
+    </div>
+  </section>
+
   <section class="checkout" id="pedido">
     <div class="checkout__header">
       <span class="checkout__eyebrow">PEDIDO</span>
@@ -129,6 +264,11 @@
     </div>
 
     <form class="checkout__form" id="checkout-form">
+      <div class="checkout__summary">
+        <img class="checkout__summary-thumb" src="assets/images/hero-kit.jpg.jpeg" alt="Kit INTACTO" loading="lazy">
+        <p class="checkout__summary-text">Kit INTACTO — $119.900</p>
+      </div>
+
       <div class="checkout__field">
         <label for="nombre">Nombre completo</label>
         <input type="text" id="nombre" name="nombre" autocomplete="name" required>
@@ -136,17 +276,23 @@
 
       <div class="checkout__field">
         <label for="telefono">Teléfono</label>
-        <input type="tel" id="telefono" name="telefono" autocomplete="tel" required>
+        <input type="tel" id="telefono" name="telefono" autocomplete="tel" inputmode="numeric" required>
       </div>
 
       <div class="checkout__field">
         <label for="direccion">Dirección</label>
-        <input type="text" id="direccion" name="direccion" autocomplete="street-address" required>
+        <input type="text" id="direccion" name="direccion" autocomplete="address-line1" required>
       </div>
 
       <div class="checkout__field">
         <label for="ciudad">Ciudad</label>
         <input type="text" id="ciudad" name="ciudad" autocomplete="address-level2" required>
+      </div>
+
+      <div class="checkout__trust">
+        <span class="checkout__trust-item"><span class="checkout__trust-icon" aria-hidden="true">🔒</span>Datos protegidos</span>
+        <span class="checkout__trust-item"><span class="checkout__trust-icon" aria-hidden="true">🚚</span>Envío a toda Colombia</span>
+        <span class="checkout__trust-item"><span class="checkout__trust-icon" aria-hidden="true">💵</span>Pagas al recibir</span>
       </div>
 
       <button class="checkout__submit" type="submit">Confirmar pedido</button>

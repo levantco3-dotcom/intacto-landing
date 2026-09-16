@@ -1,0 +1,27 @@
+/* ==========================================================================
+   INTACTO — inventory-banner.css
+   Franja de inventario real (bajo el banner deslizante superior)
+   ========================================================================== */
+
+.inventory-banner {
+  height: 32px;
+  background-color: var(--crema-oscuro);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: sticky;
+  top: 38px;
+  z-index: 95;
+}
+
+.inventory-banner__text {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 0.85rem;
+  color: var(--carbon);
+}
+
+.inventory-banner__count {
+  color: var(--cobre);
+  font-weight: 700;
+}

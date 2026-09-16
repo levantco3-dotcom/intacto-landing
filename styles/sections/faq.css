@@ -1,0 +1,85 @@
+/* ==========================================================================
+   INTACTO — faq.css
+   Sección: Preguntas frecuentes
+   ========================================================================== */
+
+.faq {
+  background-color: var(--crema);
+  padding: 56px 24px;
+}
+
+.faq__header {
+  text-align: center;
+  max-width: 480px;
+  margin: 0 auto 32px;
+}
+
+.faq__eyebrow {
+  display: block;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  color: var(--cobre);
+  margin-bottom: 10px;
+}
+
+.faq__title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  color: var(--carbon);
+}
+
+.faq__list {
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+.faq__item {
+  border-bottom: 1px solid var(--crema-oscuro);
+}
+
+.faq__item summary {
+  list-style: none;
+}
+
+.faq__item summary::-webkit-details-marker {
+  display: none;
+}
+
+.faq__question {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 0;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--carbon);
+  cursor: pointer;
+}
+
+.faq__question::after {
+  content: '+';
+  flex: 0 0 auto;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 1.3rem;
+  color: var(--cobre);
+  transition: transform 0.3s ease;
+}
+
+.faq__item[open] .faq__question::after {
+  transform: rotate(45deg);
+}
+
+.faq__answer {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--carbon-suave);
+  padding: 0 0 18px;
+}

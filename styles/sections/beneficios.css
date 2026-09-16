@@ -1,0 +1,208 @@
+/* ==========================================================================
+   INTACTO — beneficios.css
+   Sección: Lo que INTACTO hace por ti
+   ========================================================================== */
+
+.beneficios {
+  background-color: var(--crema);
+  padding: 56px 24px;
+}
+
+.beneficios__header {
+  text-align: center;
+  max-width: 480px;
+  margin: 0 auto 48px;
+}
+
+.beneficios__eyebrow {
+  display: block;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  color: var(--cobre);
+  margin-bottom: 10px;
+}
+
+.beneficios__title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  color: var(--carbon);
+}
+
+.beneficios__list {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  max-width: 380px;
+  margin: 0 auto;
+}
+
+/* Escena */
+
+.escena {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+/* Marcador: línea + número, nodo fijo reutilizado en ambos breakpoints */
+
+.escena__marker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.escena__line {
+  width: 2px;
+  height: 18px;
+  background-color: var(--crema-oscuro);
+  transition: background-color 0.4s ease;
+}
+
+.escena:first-child .escena__line--top {
+  background-color: transparent;
+}
+
+.escena:last-child .escena__line--bottom {
+  background-color: transparent;
+}
+
+.escena__badge {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid var(--crema-oscuro);
+  color: var(--crema-oscuro);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.9rem;
+  background-color: var(--crema);
+  transition: color 0.4s ease, border-color 0.4s ease, background-color 0.4s ease;
+}
+
+.escena--destacada .escena__badge {
+  width: 56px;
+  height: 56px;
+  font-size: 1.1rem;
+}
+
+.escena.is-unlocked .escena__line--top,
+.escena.is-unlocked .escena__line--bottom {
+  background-color: var(--cobre);
+}
+
+.escena.is-unlocked .escena__badge {
+  color: var(--blanco-calido);
+  border-color: var(--cobre);
+  background-color: var(--cobre);
+}
+
+/* Scroll reveal: imagen + texto */
+
+.escena__media,
+.escena__content {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+}
+
+.escena.is-unlocked .escena__media,
+.escena.is-unlocked .escena__content {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .escena__media,
+  .escena__content {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* Media placeholder */
+
+.escena__media {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: 12px;
+  background-color: var(--carbon);
+  overflow: hidden;
+}
+
+.escena__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Contenido */
+
+.escena__content {
+  text-align: left;
+}
+
+.escena__title {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: var(--carbon);
+  margin-bottom: 8px;
+}
+
+.escena--destacada .escena__title {
+  font-size: 1.375rem;
+}
+
+.escena__text {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 1.0625rem;
+  color: var(--carbon-suave);
+}
+
+@media (min-width: 768px) {
+  .beneficios__list {
+    max-width: 900px;
+    gap: 56px;
+  }
+
+  .escena {
+    flex-direction: row;
+    align-items: center;
+    gap: 32px;
+  }
+
+  .escena__marker {
+    order: 2;
+    flex: 0 0 auto;
+  }
+
+  .escena__media {
+    order: 1;
+    flex: 1;
+  }
+
+  .escena__content {
+    order: 3;
+    flex: 1;
+  }
+
+  .escena:nth-child(even) .escena__media {
+    order: 3;
+  }
+
+  .escena:nth-child(even) .escena__content {
+    order: 1;
+  }
+}
