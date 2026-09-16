@@ -1,23 +1,33 @@
-document.addEventListener('DOMContentLoaded', () => {
-  const inventoryBanner = document.getElementById('inventory-banner');
-  const inventoryCount = document.getElementById('inventory-count');
+function appendInventoryPhrase(available) {
+  document.querySelectorAll('.top-bar__item').forEach((item) => {
+    const separator = document.createElement('span');
+    separator.className = 'top-bar__separator';
+    separator.textContent = '·';
 
-  if (inventoryBanner && inventoryCount) {
-    fetch('/api/get-inventory')
-      .then((response) => {
-        if (!response.ok) throw new Error('Respuesta no válida');
-        return response.json();
-      })
-      .then((data) => {
-        if (typeof data.available !== 'number') throw new Error('Payload inválido');
-        inventoryCount.textContent = data.available;
-        inventoryBanner.hidden = false;
-        document.body.classList.add('has-inventory-banner');
-      })
-      .catch(() => {
-        inventoryBanner.hidden = true;
-      });
-  }
+    const count = document.createElement('span');
+    count.className = 'top-bar__inventory-count';
+    count.textContent = available;
+
+    const phrase = document.createElement('span');
+    phrase.append('QUEDAN ', count, ' DE 100 UNIDADES DEL PRIMER LOTE');
+
+    item.append(' ', separator, ' ', phrase);
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  fetch('/api/get-inventory')
+    .then((response) => {
+      if (!response.ok) throw new Error('Respuesta no válida');
+      return response.json();
+    })
+    .then((data) => {
+      if (typeof data.available !== 'number') throw new Error('Payload inválido');
+      appendInventoryPhrase(data.available);
+    })
+    .catch(() => {
+      /* la frase de inventario simplemente no se agrega al loop */
+    });
 
   const scrollTargets = document.querySelectorAll('[data-scroll-to]');
   scrollTargets.forEach((el) => {

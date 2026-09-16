@@ -14,10 +14,6 @@
   z-index: 90;
 }
 
-body.has-inventory-banner .site-header {
-  top: 70px;
-}
-
 .site-header__logo {
   height: 44px;
   width: auto;
