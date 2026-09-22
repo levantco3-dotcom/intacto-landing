@@ -1,0 +1,240 @@
+/* ==========================================================================
+   INTACTO — comparativa.css
+   Sección: La comparación
+   ========================================================================== */
+
+.comparativa {
+  background-color: var(--crema);
+  padding: 56px 24px;
+}
+
+.comparativa__header {
+  text-align: center;
+  max-width: 480px;
+  margin: 0 auto 32px;
+}
+
+.comparativa__eyebrow {
+  display: block;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--cobre);
+  margin-bottom: 10px;
+}
+
+.comparativa__title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  color: var(--carbon);
+}
+
+/* Pestañas */
+
+.comparativa__tabs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  max-width: 640px;
+  margin: 0 auto 32px;
+  border-bottom: 1px solid var(--crema-oscuro);
+}
+
+.comparativa__tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.comparativa__tab {
+  flex: 0 0 auto;
+  background: none;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--carbon-suave);
+  padding: 12px 16px;
+  border-bottom: 2px solid transparent;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.comparativa__tab.is-active {
+  color: var(--carbon);
+  border-bottom-color: var(--cobre);
+}
+
+/* Panel + columnas */
+
+.comparativa__panel {
+  max-width: 640px;
+  margin: 0 auto;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.comparativa__panel.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/*
+  Grid de 2 columnas, siempre lado a lado (también en móvil).
+  Cada fila lógica (blob, título, cada dato) se emite como dos celdas
+  hermanas consecutivas en el DOM, así el grid las alinea a la misma
+  altura automáticamente sin depender de JS para medir alturas.
+*/
+
+.comparativa__columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.comparativa__cell {
+  text-align: center;
+  padding: 8px 6px;
+  overflow-wrap: break-word;
+}
+
+.comparativa__blob-cell {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+.comparativa__title-cell {
+  padding-bottom: 10px;
+}
+
+.comparativa__row-cell {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--crema-oscuro);
+}
+
+.comparativa__row-cell--last {
+  border-bottom: none;
+}
+
+/* Columna INTACTO: borde cobre continuo a lo largo de toda la columna */
+
+.comparativa__cell--intacto {
+  border-left: 1px solid var(--cobre);
+  border-right: 1px solid var(--cobre);
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.comparativa__cell--intacto-first {
+  border-top: 1px solid var(--cobre);
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+  padding-top: 12px;
+}
+
+.comparativa__cell--intacto-last {
+  border-bottom: 1px solid var(--cobre);
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
+  padding-bottom: 12px;
+}
+
+.comparativa__blob {
+  width: 74px;
+  height: 74px;
+  margin: 0 auto 10px;
+  overflow: hidden;
+  border-radius: 62% 38% 55% 45% / 45% 55% 42% 58%;
+}
+
+.comparativa__blob img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.comparativa__column-title {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.8rem;
+  color: var(--carbon);
+}
+
+.comparativa__row-cell dt {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 0.58rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--carbon-suave);
+  margin-bottom: 3px;
+}
+
+.comparativa__row-cell dd {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 0.75rem;
+  line-height: 1.35;
+  color: var(--carbon);
+}
+
+@media (min-width: 768px) {
+  .comparativa {
+    padding: 80px 24px;
+  }
+
+  .comparativa__cell {
+    padding: 12px 28px;
+  }
+
+  .comparativa__blob-cell {
+    padding-top: 32px;
+    padding-bottom: 16px;
+  }
+
+  .comparativa__title-cell {
+    padding-bottom: 16px;
+  }
+
+  .comparativa__row-cell--last {
+    padding-bottom: 32px;
+  }
+
+  .comparativa__cell--intacto {
+    padding-left: 36px;
+    padding-right: 36px;
+  }
+
+  .comparativa__cell--intacto-first {
+    padding-top: 32px;
+  }
+
+  .comparativa__cell--intacto-last {
+    padding-bottom: 32px;
+  }
+
+  .comparativa__blob {
+    width: 112px;
+    height: 112px;
+    margin-bottom: 16px;
+  }
+
+  .comparativa__column-title {
+    font-size: 1.0625rem;
+  }
+
+  .comparativa__row-cell dt {
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    margin-bottom: 4px;
+  }
+
+  .comparativa__row-cell dd {
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+}

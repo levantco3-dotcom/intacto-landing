@@ -10,24 +10,18 @@
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;900&family=Barlow:wght@400;500;700&family=Cormorant+Garamond:ital@1&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="styles/base.css">
-  <link rel="stylesheet" href="styles/globals/top-bar.css">
   <link rel="stylesheet" href="styles/globals/header.css">
   <link rel="stylesheet" href="styles/globals/whatsapp-float.css">
   <link rel="stylesheet" href="styles/sections/hero.css">
   <link rel="stylesheet" href="styles/sections/demo.css">
   <link rel="stylesheet" href="styles/sections/beneficios.css">
+  <link rel="stylesheet" href="styles/sections/resultados.css">
   <link rel="stylesheet" href="styles/sections/faq.css">
+  <link rel="stylesheet" href="styles/sections/comparativa.css">
   <link rel="stylesheet" href="styles/sections/checkout.css">
   <link rel="stylesheet" href="styles/globals/sticky-cta.css">
 </head>
 <body>
-
-  <div class="top-bar">
-    <div class="top-bar__track">
-      <span class="top-bar__item">ENVÍO GRATIS A TODA COLOMBIA <span class="top-bar__separator">·</span> PAGO AL RECIBIR <span class="top-bar__separator">·</span> KIT COMPLETO <span class="top-bar__separator">·</span> 2 MINUTOS SIN LAVADORA <span class="top-bar__separator">·</span> GARANTÍA DE 15 DÍAS</span>
-      <span class="top-bar__item">ENVÍO GRATIS A TODA COLOMBIA <span class="top-bar__separator">·</span> PAGO AL RECIBIR <span class="top-bar__separator">·</span> KIT COMPLETO <span class="top-bar__separator">·</span> 2 MINUTOS SIN LAVADORA <span class="top-bar__separator">·</span> GARANTÍA DE 15 DÍAS</span>
-    </div>
-  </div>
 
   <header class="site-header">
     <img
@@ -51,25 +45,66 @@
       <h1 class="hero__headline">Que tus tenis se vean como <span class="highlight">EL DÍA 1</span></h1>
       <p class="hero__subhead"><strong>Kit INTACTO</strong> — espuma, spray, cepillo y toalla. 2 minutos, sin lavadora.</p>
 
-      <p class="hero__price">
-        <span class="hero__price-old">$199.900</span>
-        <span class="hero__price-current">$119.900</span>
-      </p>
-
-      <hr class="hero__divider">
+      <ul class="hero__benefits">
+        <li class="hero__benefit">
+          <svg class="hero__benefit-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="9"></circle>
+            <path d="M12 7v5l3.5 2"></path>
+          </svg>
+          <span>2 minutos, sin lavadora</span>
+        </li>
+        <li class="hero__benefit">
+          <svg class="hero__benefit-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 3 3 8l9 5 9-5-9-5Z"></path>
+            <path d="M3 13l9 5 9-5"></path>
+          </svg>
+          <span>Funciona en cuero, gamuza y tela</span>
+        </li>
+        <li class="hero__benefit">
+          <svg class="hero__benefit-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 3 4 6v6c0 4.5 3.2 7.7 8 9 4.8-1.3 8-4.5 8-9V6l-8-3Z"></path>
+            <path d="m9 12 2 2 4-4"></path>
+          </svg>
+          <span>Garantía de 15 días</span>
+        </li>
+      </ul>
 
       <a href="#reseñas" class="hero__trustbar">
         <span class="hero__stars">★★★★★</span>
         <span class="hero__trustbar-text">Probado en AF1, Nike Dunk y Jordan 1</span>
       </a>
 
-      <p class="hero__care-note">Fórmula segura para gamuza, tela y cuero · Si no te funciona en 15 días, te devolvemos tu dinero</p>
+      <div class="hero__card">
+        <button class="hero__cta" type="button" data-scroll-to="#pedido">
+          <span class="hero__cta-label">Comprar ahora</span>
+          <span class="hero__cta-price-row">
+            <span class="hero__cta-price">$119.900</span>
+            <span class="hero__cta-old">$199.900</span>
+          </span>
+        </button>
 
-      <p class="hero__urgency">Cada día que pasa, se ponen más difíciles de recuperar.</p>
+        <p class="hero__shipping">
+          <svg class="hero__shipping-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M3 7h11v8H3z"></path>
+            <path d="M14 10h4l3 3v2h-7z"></path>
+            <circle cx="7" cy="18" r="1.6"></circle>
+            <circle cx="17.5" cy="18" r="1.6"></circle>
+          </svg>
+          Envío gratis a todo Colombia
+        </p>
 
-      <div class="hero__cta-group">
-        <button class="hero__cta" type="button" data-scroll-to="#pedido">Pedir mi kit</button>
-        <p class="hero__cta-note">Pago al recibir · Envío a toda Colombia</p>
+        <div class="hero__payment-badges">
+          <span class="hero__payment-chip">
+            <img class="hero__payment-logo" src="assets/images/logo%20visa%20mastercard.jpg" alt="Visa / Mastercard" loading="lazy">
+          </span>
+          <span class="hero__payment-chip">
+            <img class="hero__payment-logo" src="assets/images/logo-nequi.jpg" alt="Nequi" loading="lazy">
+          </span>
+          <span class="hero__payment-chip">
+            <img class="hero__payment-logo" src="assets/images/Bre-B-logo.jpg" alt="Bre-B" loading="lazy">
+          </span>
+          <span class="hero__payment-chip hero__payment-chip--text">Contra entrega</span>
+        </div>
       </div>
     </div>
   </section>
@@ -96,7 +131,7 @@
 
       <div class="material-grid">
         <!-- FOTO PENDIENTE: Gamuza -->
-        <div class="material-card">
+        <div class="material-card material-card--gamuza">
           <div class="material-card__placeholder">
             <span class="material-card__half">ANTES</span>
             <span class="material-card__half">DESPUÉS</span>
@@ -105,7 +140,7 @@
         </div>
 
         <!-- FOTO PENDIENTE: Tela -->
-        <div class="material-card">
+        <div class="material-card material-card--tela">
           <div class="material-card__placeholder">
             <span class="material-card__half">ANTES</span>
             <span class="material-card__half">DESPUÉS</span>
@@ -114,7 +149,7 @@
         </div>
 
         <!-- FOTO PENDIENTE: Cuero -->
-        <div class="material-card">
+        <div class="material-card material-card--cuero">
           <div class="material-card__placeholder">
             <span class="material-card__half">ANTES</span>
             <span class="material-card__half">DESPUÉS</span>
@@ -221,6 +256,18 @@
     </div>
   </section>
 
+  <section class="resultados" id="resultados">
+    <div class="resultados__header">
+      <span class="resultados__eyebrow">RESULTADOS REALES</span>
+      <h2 class="resultados__title">Esto es lo que hace INTACTO</h2>
+      <p class="resultados__subhead">Diez pares, diez materiales distintos. El resultado habla solo.</p>
+    </div>
+
+    <div class="resultados__carousel" id="resultados-carousel"></div>
+
+    <div class="resultados__progress" id="resultados-progress"></div>
+  </section>
+
   <section class="faq">
     <div class="faq__header">
       <span class="faq__eyebrow">PREGUNTAS FRECUENTES</span>
@@ -248,6 +295,17 @@
         <p class="faq__answer">Aplica la espuma, cepilla, seca con la toalla. 2 minutos, sin lavadora.</p>
       </details>
     </div>
+  </section>
+
+  <section class="comparativa" id="comparativa">
+    <div class="comparativa__header">
+      <span class="comparativa__eyebrow">LA COMPARACIÓN</span>
+      <h2 class="comparativa__title">Lo que cambia con INTACTO</h2>
+    </div>
+
+    <div class="comparativa__tabs" id="comparativa-tabs" role="tablist"></div>
+
+    <div class="comparativa__panel" id="comparativa-panel"></div>
   </section>
 
   <section class="checkout" id="pedido">
@@ -313,6 +371,8 @@
     </svg>
   </a>
 
+  <script src="scripts/resultados-data.js"></script>
+  <script src="scripts/comparativa-data.js"></script>
   <script src="scripts/main.js"></script>
 </body>
 </html>

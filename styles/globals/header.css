@@ -1,6 +1,6 @@
 /* ==========================================================================
    INTACTO — header.css
-   Header con logo, sticky debajo del top-bar
+   Header con logo, sticky en la parte superior
    ========================================================================== */
 
 .site-header {
@@ -10,7 +10,7 @@
   align-items: center;
   justify-content: center;
   position: sticky;
-  top: 38px;
+  top: 0;
   z-index: 90;
 }
 

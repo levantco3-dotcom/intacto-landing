@@ -55,42 +55,44 @@
   color: inherit;
 }
 
-.hero__price {
+/* Beneficios rápidos */
+
+.hero__benefits {
+  list-style: none;
   display: flex;
-  align-items: baseline;
+  flex-direction: column;
   gap: 10px;
-  margin-top: 12px;
+  margin-top: 20px;
+  width: 100%;
 }
 
-.hero__price-old {
-  font-family: var(--font-body);
-  font-weight: 400;
-  font-size: 0.95rem;
-  color: var(--carbon-suave);
-  text-decoration: line-through;
+.hero__benefit {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-.hero__price-current {
+.hero__benefit-icon {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  color: var(--cobre);
+}
+
+.hero__benefit span {
   font-family: var(--font-body);
-  font-weight: 700;
-  font-size: 1.5rem;
+  font-weight: 500;
+  font-size: 0.9rem;
   color: var(--carbon);
 }
 
-.hero__divider {
-  width: 40px;
-  height: 2px;
-  background-color: var(--cobre);
-  border: none;
-  margin: 24px 0 20px;
-  align-self: center;
-}
+/* Prueba social */
 
 .hero__trustbar {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 16px;
+  margin-top: 18px;
   cursor: pointer;
 }
 
@@ -112,54 +114,137 @@
   text-decoration-color: var(--cobre);
 }
 
-.hero__care-note {
-  font-family: var(--font-body);
-  font-weight: 400;
-  font-size: 0.9rem;
-  line-height: 1.5;
-  color: var(--carbon-suave);
-  margin-bottom: 12px;
-}
+/* Tarjeta de compra */
 
-.hero__urgency {
-  font-family: var(--font-editorial);
-  font-style: italic;
-  font-weight: 400;
-  font-size: 0.95rem;
-  color: var(--cobre-oscuro);
-  margin-top: 20px;
-  margin-bottom: 28px;
-}
-
-.hero__cta-group {
+.hero__card {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  align-self: stretch;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
+  background-color: var(--carbon);
+  border: 1px solid rgba(140, 90, 40, 0.35);
+  border-radius: 10px;
+  padding: 24px 20px 20px;
+  margin-top: 22px;
+  box-shadow: 0 16px 32px rgba(181, 118, 58, 0.22);
+  overflow: hidden;
 }
 
-.hero__cta-note {
-  font-family: var(--font-body);
-  font-weight: 500;
-  font-size: 0.85rem;
-  letter-spacing: 0.03em;
-  color: var(--cobre-oscuro);
-  margin-top: 14px;
+.hero__card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background-color: var(--cobre);
 }
 
 .hero__cta {
-  font-family: var(--font-body);
-  font-weight: 700;
-  font-size: 1.0625rem;
-  color: var(--blanco-calido);
-  background-color: var(--cobre);
-  padding: 18px 40px;
-  border-radius: 4px;
-  transition: background-color 0.2s ease;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(180deg, var(--cobre), var(--cobre-oscuro));
+  border-radius: 6px;
+  padding: 16px 20px;
+  box-shadow: 0 8px 18px rgba(140, 90, 40, 0.35);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 .hero__cta:hover,
 .hero__cta:focus-visible {
-  background-color: var(--cobre-oscuro);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(140, 90, 40, 0.45);
+}
+
+.hero__cta-label {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+  color: var(--blanco-calido);
+}
+
+.hero__cta-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.hero__cta-price {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 1.9rem;
+  line-height: 1;
+  color: var(--blanco-calido);
+}
+
+.hero__cta-old {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 0.85rem;
+  color: var(--carbon-suave);
+  text-decoration: line-through;
+}
+
+.hero__shipping {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 18px;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 0.85rem;
+  color: var(--crema);
+}
+
+.hero__shipping-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  color: var(--cobre);
+}
+
+.hero__payment-badges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.hero__payment-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 30px;
+  background-color: var(--blanco-calido);
+  border: 1px solid rgba(140, 90, 40, 0.3);
+  border-radius: 4px;
+  padding: 0 8px;
+  box-sizing: border-box;
+}
+
+.hero__payment-logo {
+  height: 16px;
+  width: auto;
+  display: block;
+}
+
+.hero__payment-chip--text {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.55rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--cobre-oscuro);
+  white-space: nowrap;
 }
 
 @media (min-width: 768px) {
@@ -185,7 +270,30 @@
     font-size: 1.125rem;
   }
 
-  .hero__divider {
-    align-self: flex-start;
+  .hero__benefits {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 14px 28px;
+  }
+
+  .hero__card {
+    padding: 28px 24px 24px;
+  }
+
+  .hero__cta-price {
+    font-size: 2.1rem;
+  }
+
+  .hero__payment-chip {
+    height: 34px;
+    padding: 0 10px;
+  }
+
+  .hero__payment-logo {
+    height: 18px;
+  }
+
+  .hero__payment-chip--text {
+    font-size: 0.6rem;
   }
 }

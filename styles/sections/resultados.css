@@ -1,0 +1,136 @@
+/* ==========================================================================
+   INTACTO — resultados.css
+   Sección 7: Resultados reales
+   ========================================================================== */
+
+.resultados {
+  background-color: var(--crema);
+  padding: 56px 0;
+}
+
+.resultados__header {
+  text-align: center;
+  max-width: 480px;
+  margin: 0 auto 40px;
+  padding: 0 24px;
+}
+
+.resultados__eyebrow {
+  display: block;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--cobre);
+  margin-bottom: 10px;
+}
+
+.resultados__title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  color: var(--carbon);
+}
+
+.resultados__subhead {
+  font-family: var(--font-editorial);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(1.125rem, 3vw, 1.375rem);
+  color: var(--carbon-suave);
+  margin-top: 14px;
+}
+
+/* Carrusel */
+
+.resultados__carousel {
+  display: flex;
+  gap: 28px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding-left: 24px;
+  padding: 4px 24px 16px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.resultados__carousel::-webkit-scrollbar {
+  display: none;
+}
+
+.resultado-card {
+  flex: 0 0 auto;
+  width: 76vw;
+  max-width: 320px;
+  scroll-snap-align: center;
+}
+
+.resultado-card__frame {
+  background-color: var(--blanco-calido);
+  border: 1px solid var(--cobre-oscuro);
+  border-radius: 2px;
+  padding: 16px;
+  box-shadow: 0 4px 20px rgba(26, 23, 20, 0.06);
+}
+
+.resultado-card__photo {
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+}
+
+.resultado-card__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.resultado-card__caption {
+  text-align: center;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--carbon-suave);
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--cobre-oscuro);
+}
+
+/* Indicador de progreso */
+
+.resultados__progress {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 24px;
+}
+
+.resultados__progress-line {
+  width: 24px;
+  height: 2px;
+  background-color: var(--crema-oscuro);
+  transition: background-color 0.3s ease;
+}
+
+.resultados__progress-line.is-active {
+  background-color: var(--cobre);
+}
+
+@media (min-width: 768px) {
+  .resultados {
+    padding: 80px 0;
+  }
+
+  .resultados__carousel {
+    gap: 40px;
+    padding: 4px 64px 20px;
+    scroll-padding-left: 64px;
+  }
+
+  .resultado-card {
+    width: 320px;
+  }
+}

@@ -98,8 +98,11 @@
 
 .material-grid {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 24px;
+  grid-template-columns: 1fr 1fr;
+  grid-template-areas:
+    "cuero gamuza"
+    "tela tela";
+  gap: 16px;
   max-width: 380px;
   margin: 0 auto;
 }
@@ -107,7 +110,21 @@
 .material-card {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
+}
+
+.material-card--gamuza {
+  grid-area: gamuza;
+}
+
+.material-card--cuero {
+  grid-area: cuero;
+}
+
+.material-card--tela {
+  grid-area: tela;
+  width: calc(50% - 8px);
+  justify-self: center;
 }
 
 .material-card__placeholder {
@@ -115,6 +132,8 @@
   border-radius: 12px;
   overflow: hidden;
   background-color: var(--crema-oscuro);
+  border: 1px solid rgba(140, 90, 40, 0.25);
+  box-shadow: 0 6px 16px rgba(181, 118, 58, 0.12);
   display: flex;
   position: relative;
 }
@@ -126,8 +145,8 @@
   justify-content: center;
   font-family: var(--font-body);
   font-weight: 700;
-  font-size: 0.8rem;
-  letter-spacing: 0.08em;
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
   color: var(--carbon-suave);
 }
 
@@ -145,7 +164,7 @@
 .material-card__name {
   font-family: var(--font-body);
   font-weight: 700;
-  font-size: 1.0625rem;
+  font-size: 0.95rem;
   color: var(--carbon);
   text-align: center;
 }
@@ -162,8 +181,20 @@
 
 @media (min-width: 768px) {
   .material-grid {
-    grid-template-columns: repeat(3, 1fr);
-    max-width: 900px;
-    gap: 32px;
+    max-width: 640px;
+    gap: 28px;
+  }
+
+  .material-card--tela {
+    width: calc(50% - 14px);
+  }
+
+  .material-card__half {
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+  }
+
+  .material-card__name {
+    font-size: 1.0625rem;
   }
 }
