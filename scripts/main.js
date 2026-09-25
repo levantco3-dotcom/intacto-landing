@@ -1,3 +1,79 @@
+// Datos del producto único, reutilizados por los eventos de Meta Pixel.
+const INTACTO_PRODUCT = {
+  contentName: 'Kit INTACTO',
+  contentType: 'product',
+  value: 119900,
+  currency: 'COP'
+};
+
+function trackFbq(eventName, params, options) {
+  if (typeof fbq !== 'function') return;
+  if (options) {
+    fbq('track', eventName, params, options);
+  } else {
+    fbq('track', eventName, params);
+  }
+}
+
+function trackViewContentOnce() {
+  trackFbq('ViewContent', {
+    content_name: INTACTO_PRODUCT.contentName,
+    content_type: INTACTO_PRODUCT.contentType,
+    value: INTACTO_PRODUCT.value,
+    currency: INTACTO_PRODUCT.currency
+  });
+}
+
+function initInitiateCheckoutTracking() {
+  const STORAGE_KEY = 'intacto_initiate_checkout_fired';
+  let fired = false;
+
+  try {
+    fired = sessionStorage.getItem(STORAGE_KEY) === '1';
+  } catch (err) {
+    // sessionStorage no disponible (modo privado, etc.) — se controla solo con la variable en memoria
+  }
+
+  function fireOnce() {
+    if (fired) return;
+    fired = true;
+
+    try {
+      sessionStorage.setItem(STORAGE_KEY, '1');
+    } catch (err) {
+      // no crítico si no se puede persistir
+    }
+
+    trackFbq('InitiateCheckout', {
+      content_name: INTACTO_PRODUCT.contentName,
+      content_type: INTACTO_PRODUCT.contentType,
+      value: INTACTO_PRODUCT.value,
+      currency: INTACTO_PRODUCT.currency
+    });
+  }
+
+  if (fired) return; // ya se disparó en una carga anterior de esta misma sesión
+
+  const form = document.getElementById('checkout-form');
+  if (form) {
+    form.querySelectorAll('input').forEach((input) => {
+      input.addEventListener('focus', fireOnce, { once: true });
+      input.addEventListener('input', fireOnce, { once: true });
+    });
+  }
+
+  document.querySelectorAll('[data-scroll-to="#pedido"]').forEach((el) => {
+    el.addEventListener('click', fireOnce);
+  });
+}
+
+function generateEventId() {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+  return `evt_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+}
+
 function buildComparativaBlobCell(entry, isIntacto) {
   const cell = document.createElement('div');
   cell.className = 'comparativa__cell comparativa__blob-cell' + (isIntacto ? ' comparativa__cell--intacto comparativa__cell--intacto-first' : '');
@@ -190,6 +266,73 @@ function initResultados() {
   }
 }
 
+function initHeroGallery() {
+  const gallery = document.getElementById('hero-gallery');
+  if (!gallery) return;
+
+  const mainImg = document.getElementById('hero-gallery-main-img');
+  const thumbs = Array.from(gallery.querySelectorAll('.hero__gallery-thumb'));
+  if (!mainImg || !thumbs.length) return;
+
+  let index = 0;
+  let isSwapping = false;
+
+  function setActive(newIndex) {
+    if (isSwapping) return;
+    index = (newIndex + thumbs.length) % thumbs.length;
+    const thumb = thumbs[index];
+
+    thumbs.forEach((t, i) => {
+      const isActive = i === index;
+      t.classList.toggle('is-active', isActive);
+      t.setAttribute('aria-selected', String(isActive));
+    });
+
+    isSwapping = true;
+    mainImg.style.opacity = '0';
+    window.setTimeout(() => {
+      mainImg.src = thumb.getAttribute('data-src');
+      mainImg.alt = thumb.getAttribute('data-alt') || '';
+      mainImg.style.opacity = '1';
+      isSwapping = false;
+    }, 150);
+  }
+
+  thumbs.forEach((thumb, i) => {
+    thumb.addEventListener('click', () => setActive(i));
+  });
+
+  let touchStartX = 0;
+  let touchDeltaX = 0;
+  let isTouching = false;
+
+  const mainMedia = gallery.querySelector('.hero__gallery-main');
+
+  mainMedia.addEventListener('touchstart', (event) => {
+    isTouching = true;
+    touchStartX = event.touches[0].clientX;
+    touchDeltaX = 0;
+  }, { passive: true });
+
+  mainMedia.addEventListener('touchmove', (event) => {
+    if (!isTouching) return;
+    touchDeltaX = event.touches[0].clientX - touchStartX;
+  }, { passive: true });
+
+  mainMedia.addEventListener('touchend', () => {
+    if (!isTouching) return;
+    isTouching = false;
+
+    const threshold = 40;
+    if (touchDeltaX > threshold) {
+      setActive(index - 1);
+    } else if (touchDeltaX < -threshold) {
+      setActive(index + 1);
+    }
+    touchDeltaX = 0;
+  });
+}
+
 function initStickyCtaVisibility() {
   const heroCard = document.querySelector('.hero__card');
   const stickyCta = document.querySelector('.sticky-cta');
@@ -210,9 +353,12 @@ function initStickyCtaVisibility() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  initHeroGallery();
   initResultados();
   initComparativa();
   initStickyCtaVisibility();
+  trackViewContentOnce();
+  initInitiateCheckoutTracking();
 
   const scrollTargets = document.querySelectorAll('[data-scroll-to]');
   scrollTargets.forEach((el) => {
@@ -261,6 +407,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const direccion = form.direccion.value.trim();
     const ciudad = form.ciudad.value.trim();
 
+    // event_id único por pedido: se manda al backend para que dispare la
+    // Purchase de servidor (Conversions API) con el MISMO id que usará el
+    // pixel del navegador, para que Meta deduplique un solo evento.
+    const eventId = generateEventId();
+
     submitButton.disabled = true;
     submitButton.textContent = 'Enviando...';
 
@@ -268,7 +419,14 @@ document.addEventListener('DOMContentLoaded', () => {
       const response = await fetch('/api/create-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nombre, telefono, direccion, ciudad })
+        body: JSON.stringify({
+          nombre,
+          telefono,
+          direccion,
+          ciudad,
+          eventId,
+          eventSourceUrl: window.location.href
+        })
       });
 
       const data = await response.json();
@@ -276,6 +434,16 @@ document.addEventListener('DOMContentLoaded', () => {
       if (data.success) {
         showResult('success', data.orderNumber);
         form.reset();
+
+        // Purchase solo se dispara aquí porque el backend ya confirmó que
+        // la orden se creó en Shopify. El mismo eventId ya se usó del lado
+        // del servidor para la Conversions API — eventID aquí deduplica.
+        trackFbq('Purchase', {
+          content_name: INTACTO_PRODUCT.contentName,
+          content_type: INTACTO_PRODUCT.contentType,
+          value: INTACTO_PRODUCT.value,
+          currency: INTACTO_PRODUCT.currency
+        }, { eventID: eventId });
       } else {
         showResult('error');
       }

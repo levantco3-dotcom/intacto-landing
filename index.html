@@ -20,6 +20,26 @@
   <link rel="stylesheet" href="styles/sections/comparativa.css">
   <link rel="stylesheet" href="styles/sections/checkout.css">
   <link rel="stylesheet" href="styles/globals/sticky-cta.css">
+
+  <!-- Meta Pixel -->
+  <script>
+    var META_PIXEL_ID = '2177392419686177';
+
+    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+    n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+    document,'script','https://connect.facebook.net/en_US/fbevents.js');
+
+    fbq('init', META_PIXEL_ID);
+    fbq('track', 'PageView');
+  </script>
+  <noscript>
+    <img height="1" width="1" style="display:none" alt=""
+      src="https://www.facebook.com/tr?id=2177392419686177&ev=PageView&noscript=1"
+    />
+  </noscript>
+  <!-- Fin Meta Pixel -->
 </head>
 <body>
 
@@ -34,11 +54,58 @@
 
   <section class="hero">
     <div class="hero__media">
-      <img
-        src="assets/images/hero-kit.jpg.jpeg"
-        alt="Kit INTACTO de cuidado para sneakers"
-        loading="eager"
-      >
+      <div class="hero__gallery" id="hero-gallery">
+        <div class="hero__gallery-main">
+          <img id="hero-gallery-main-img" src="assets/images/intacto-hero-01-kit.jpg.jpeg" alt="Kit INTACTO: espuma, cepillo, spray y toalla de microfibra" loading="eager">
+        </div>
+
+        <div class="hero__gallery-thumbs" role="tablist" aria-label="Seleccionar imagen">
+          <button
+            class="hero__gallery-thumb is-active"
+            type="button"
+            role="tab"
+            aria-selected="true"
+            aria-label="Ver imagen: kit"
+            data-src="assets/images/intacto-hero-01-kit.jpg.jpeg"
+            data-alt="Kit INTACTO: espuma, cepillo, spray y toalla de microfibra"
+          >
+            <img src="assets/images/intacto-hero-01-kit.jpg.jpeg" alt="" loading="eager">
+          </button>
+          <button
+            class="hero__gallery-thumb"
+            type="button"
+            role="tab"
+            aria-selected="false"
+            aria-label="Ver imagen: sistema"
+            data-src="assets/images/intacto-hero-02-sistema.jpg.jpg"
+            data-alt="INTACTO no es una espuma, es un sistema de cuatro piezas: espuma, cepillo, microfibra y spray"
+          >
+            <img src="assets/images/intacto-hero-02-sistema.jpg.jpg" alt="" loading="lazy">
+          </button>
+          <button
+            class="hero__gallery-thumb"
+            type="button"
+            role="tab"
+            aria-selected="false"
+            aria-label="Ver imagen: beneficios"
+            data-src="assets/images/intacto-hero-03-beneficios.jpg.png"
+            data-alt="Beneficios de INTACTO: limpieza profunda, resultados visibles, funciona en cuero, gamuza y tela"
+          >
+            <img src="assets/images/intacto-hero-03-beneficios.jpg.png" alt="" loading="lazy">
+          </button>
+          <button
+            class="hero__gallery-thumb"
+            type="button"
+            role="tab"
+            aria-selected="false"
+            aria-label="Ver imagen: resultado"
+            data-src="assets/images/intacto-hero-04-resultado.jpg.png"
+            data-alt="Tenis Nike Air Force 1 antes y después de limpiarlo con INTACTO"
+          >
+            <img src="assets/images/intacto-hero-04-resultado.jpg.png" alt="" loading="lazy">
+          </button>
+        </div>
+      </div>
     </div>
 
     <div class="hero__content">
@@ -312,7 +379,7 @@
 
     <form class="checkout__form" id="checkout-form">
       <div class="checkout__summary">
-        <img class="checkout__summary-thumb" src="assets/images/hero-kit.jpg.jpeg" alt="Kit INTACTO" loading="lazy">
+        <img class="checkout__summary-thumb" src="assets/images/intacto-hero-01-kit.jpg.jpeg" alt="Kit INTACTO" loading="lazy">
         <p class="checkout__summary-text">Kit INTACTO — $119.900</p>
       </div>
 
