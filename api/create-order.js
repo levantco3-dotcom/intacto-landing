@@ -180,7 +180,13 @@ module.exports = async (req, res) => {
       countryCode: 'CO'
     },
     phone: telefono,
-    financialStatus: 'PENDING'
+    financialStatus: 'PENDING',
+    // Sin este campo, Shopify usa BYPASS por default y el pedido NUNCA
+    // descuenta inventario, sin importar el financialStatus. Esto aplica
+    // el descuento en la creación del pedido, respetando la política de
+    // "seguir vendiendo sin stock" que tenga configurada cada variante —
+    // independiente de si el pago es COD (PENDING) o anticipado.
+    inventoryBehaviour: 'DECREMENT_OBEYING_POLICY'
   };
 
   try {

@@ -258,6 +258,29 @@
   color: var(--cobre);
 }
 
+.hero__stock {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 0.85rem;
+  color: var(--crema);
+}
+
+.hero__stock-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  color: var(--cobre);
+}
+
+.hero__stock-count {
+  color: var(--cobre);
+  font-weight: 700;
+}
+
 .hero__payment-badges {
   display: flex;
   flex-wrap: wrap;

@@ -352,11 +352,50 @@ function initStickyCtaVisibility() {
   observer.observe(heroCard);
 }
 
+function initHeroStock() {
+  const shipping = document.querySelector('.hero__shipping');
+  if (!shipping) return;
+
+  fetch('/api/get-inventory')
+    .then((response) => {
+      if (!response.ok) throw new Error('Respuesta no válida');
+      return response.json();
+    })
+    .then((data) => {
+      if (typeof data.available !== 'number') throw new Error('Payload inválido');
+
+      const stock = document.createElement('p');
+      stock.className = 'hero__stock';
+
+      const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      icon.setAttribute('class', 'hero__stock-icon');
+      icon.setAttribute('viewBox', '0 0 24 24');
+      icon.setAttribute('fill', 'none');
+      icon.setAttribute('stroke', 'currentColor');
+      icon.setAttribute('stroke-width', '1.6');
+      icon.setAttribute('stroke-linecap', 'round');
+      icon.setAttribute('stroke-linejoin', 'round');
+      icon.setAttribute('aria-hidden', 'true');
+      icon.innerHTML = '<path d="M12 3 4 7v10l8 4 8-4V7z"></path><path d="M4 7l8 4 8-4"></path><path d="M12 11v10"></path>';
+
+      const count = document.createElement('span');
+      count.className = 'hero__stock-count';
+      count.textContent = data.available;
+
+      stock.append(icon, 'Quedan ', count, ' unidades del primer lote');
+      shipping.insertAdjacentElement('afterend', stock);
+    })
+    .catch(() => {
+      // silenciosamente no se agrega nada si falla o el payload es inválido
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   initHeroGallery();
   initResultados();
   initComparativa();
   initStickyCtaVisibility();
+  initHeroStock();
   trackViewContentOnce();
   initInitiateCheckoutTracking();
 

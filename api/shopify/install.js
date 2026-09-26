@@ -21,9 +21,6 @@ module.exports = (req, res) => {
     `&redirect_uri=${encodeURIComponent(redirectUri)}` +
     `&state=${encodeURIComponent(state)}`;
 
-  // TEMPORAL: diagnóstico de scopes en el redirect real. Quitar después de confirmar.
-  console.log('shopify/install: authorizeUrl completa ->', authorizeUrl);
-
   res.writeHead(307, {
     Location: authorizeUrl,
     'Set-Cookie': `shopify_oauth_state=${state}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=300`

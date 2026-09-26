@@ -6,9 +6,24 @@ const VARIANT_INVENTORY_QUERY = `
   }
 `;
 
+const CACHE_TTL_MS = 45000;
+
+// Cache en memoria del proceso: evita golpear la Admin API de Shopify en
+// cada carga de página. Vive mientras la instancia serverless siga tibia
+// (se reinicia en cold start), pero en la práctica cubre la gran mayoría
+// de las visitas dentro de la ventana de 45s.
+let cachedPayload = null;
+let cachedAt = 0;
+
 module.exports = async (req, res) => {
   if (req.method !== 'GET') {
     res.status(405).json({ error: 'Método no permitido' });
+    return;
+  }
+
+  if (cachedPayload && Date.now() - cachedAt < CACHE_TTL_MS) {
+    res.setHeader('Cache-Control', 'public, max-age=45');
+    res.status(200).json(cachedPayload);
     return;
   }
 
@@ -38,32 +53,18 @@ module.exports = async (req, res) => {
 
     if (result.errors || !result.data || !result.data.productVariant) {
       console.error('get-inventory: respuesta inesperada de Shopify', JSON.stringify(result.errors || result));
-
-      const hasAccessDenied = Array.isArray(result.errors) &&
-        result.errors.some((e) => e.extensions && e.extensions.code === 'ACCESS_DENIED');
-
-      if (hasAccessDenied) {
-        // Diagnóstico: si Shopify rechaza por scope, confirmamos en el log
-        // cuáles scopes tiene REALMENTE el token que está corriendo ahora
-        // mismo, para no tener que adivinar si el token en Vercel quedó
-        // desactualizado tras una re-autorización.
-        try {
-          const scopesResponse = await fetch(`https://${shopDomain}/admin/oauth/access_scopes.json`, {
-            headers: { 'X-Shopify-Access-Token': accessToken }
-          });
-          const scopesResult = await scopesResponse.json();
-          console.error('get-inventory: scopes reales del SHOPIFY_ACCESS_TOKEN actual', JSON.stringify(scopesResult));
-        } catch (scopeErr) {
-          console.error('get-inventory: no se pudo verificar los scopes del token', scopeErr.message || scopeErr);
-        }
-      }
-
       res.status(502).json({ error: 'No se pudo obtener el inventario' });
       return;
     }
 
     const available = Math.max(0, result.data.productVariant.inventoryQuantity || 0);
-    res.status(200).json({ available });
+    const payload = { available };
+
+    cachedPayload = payload;
+    cachedAt = Date.now();
+
+    res.setHeader('Cache-Control', 'public, max-age=45');
+    res.status(200).json(payload);
   } catch (err) {
     console.error('get-inventory: excepción al consultar Shopify', err);
     res.status(500).json({ error: 'No se pudo obtener el inventario' });
