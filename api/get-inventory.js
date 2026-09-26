@@ -38,6 +38,26 @@ module.exports = async (req, res) => {
 
     if (result.errors || !result.data || !result.data.productVariant) {
       console.error('get-inventory: respuesta inesperada de Shopify', JSON.stringify(result.errors || result));
+
+      const hasAccessDenied = Array.isArray(result.errors) &&
+        result.errors.some((e) => e.extensions && e.extensions.code === 'ACCESS_DENIED');
+
+      if (hasAccessDenied) {
+        // Diagnóstico: si Shopify rechaza por scope, confirmamos en el log
+        // cuáles scopes tiene REALMENTE el token que está corriendo ahora
+        // mismo, para no tener que adivinar si el token en Vercel quedó
+        // desactualizado tras una re-autorización.
+        try {
+          const scopesResponse = await fetch(`https://${shopDomain}/admin/oauth/access_scopes.json`, {
+            headers: { 'X-Shopify-Access-Token': accessToken }
+          });
+          const scopesResult = await scopesResponse.json();
+          console.error('get-inventory: scopes reales del SHOPIFY_ACCESS_TOKEN actual', JSON.stringify(scopesResult));
+        } catch (scopeErr) {
+          console.error('get-inventory: no se pudo verificar los scopes del token', scopeErr.message || scopeErr);
+        }
+      }
+
       res.status(502).json({ error: 'No se pudo obtener el inventario' });
       return;
     }
