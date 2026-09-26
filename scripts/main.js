@@ -352,10 +352,55 @@ function initStickyCtaVisibility() {
   observer.observe(heroCard);
 }
 
-function initHeroStock() {
+function populateHeroStock(available) {
   const shipping = document.querySelector('.hero__shipping');
-  if (!shipping) return;
+  if (!shipping || document.querySelector('.hero__stock')) return;
 
+  const stock = document.createElement('p');
+  stock.className = 'hero__stock';
+
+  const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  icon.setAttribute('class', 'hero__stock-icon');
+  icon.setAttribute('viewBox', '0 0 24 24');
+  icon.setAttribute('fill', 'none');
+  icon.setAttribute('stroke', 'currentColor');
+  icon.setAttribute('stroke-width', '1.6');
+  icon.setAttribute('stroke-linecap', 'round');
+  icon.setAttribute('stroke-linejoin', 'round');
+  icon.setAttribute('aria-hidden', 'true');
+  icon.innerHTML = '<path d="M12 3 4 7v10l8 4 8-4V7z"></path><path d="M4 7l8 4 8-4"></path><path d="M12 11v10"></path>';
+
+  const count = document.createElement('span');
+  count.className = 'hero__stock-count';
+  count.textContent = available;
+
+  stock.append(icon, 'Quedan ', count, ' unidades del primer lote');
+  shipping.insertAdjacentElement('afterend', stock);
+}
+
+function populateStickyStock(available) {
+  const stickyButton = document.querySelector('.sticky-cta__button');
+  if (!stickyButton || document.querySelector('.sticky-cta__stock')) return;
+
+  const stock = document.createElement('p');
+  stock.className = 'sticky-cta__stock';
+
+  const count = document.createElement('span');
+  count.className = 'sticky-cta__stock-count';
+  count.textContent = available;
+
+  stock.append('Quedan ', count, ' unidades del primer lote');
+  stickyButton.insertAdjacentElement('beforebegin', stock);
+}
+
+function initInventoryDisplays() {
+  const heroShipping = document.querySelector('.hero__shipping');
+  const stickyButton = document.querySelector('.sticky-cta__button');
+  if (!heroShipping && !stickyButton) return;
+
+  // Un solo fetch alimenta ambos consumidores (hero + barra sticky) — el
+  // servidor ya cachea 45s, así que esto además evita un segundo round-trip
+  // innecesario desde el cliente para el mismo dato.
   fetch('/api/get-inventory')
     .then((response) => {
       if (!response.ok) throw new Error('Respuesta no válida');
@@ -363,27 +408,8 @@ function initHeroStock() {
     })
     .then((data) => {
       if (typeof data.available !== 'number') throw new Error('Payload inválido');
-
-      const stock = document.createElement('p');
-      stock.className = 'hero__stock';
-
-      const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-      icon.setAttribute('class', 'hero__stock-icon');
-      icon.setAttribute('viewBox', '0 0 24 24');
-      icon.setAttribute('fill', 'none');
-      icon.setAttribute('stroke', 'currentColor');
-      icon.setAttribute('stroke-width', '1.6');
-      icon.setAttribute('stroke-linecap', 'round');
-      icon.setAttribute('stroke-linejoin', 'round');
-      icon.setAttribute('aria-hidden', 'true');
-      icon.innerHTML = '<path d="M12 3 4 7v10l8 4 8-4V7z"></path><path d="M4 7l8 4 8-4"></path><path d="M12 11v10"></path>';
-
-      const count = document.createElement('span');
-      count.className = 'hero__stock-count';
-      count.textContent = data.available;
-
-      stock.append(icon, 'Quedan ', count, ' unidades del primer lote');
-      shipping.insertAdjacentElement('afterend', stock);
+      if (heroShipping) populateHeroStock(data.available);
+      if (stickyButton) populateStickyStock(data.available);
     })
     .catch(() => {
       // silenciosamente no se agrega nada si falla o el payload es inválido
@@ -395,7 +421,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initResultados();
   initComparativa();
   initStickyCtaVisibility();
-  initHeroStock();
+  initInventoryDisplays();
   trackViewContentOnce();
   initInitiateCheckoutTracking();
 
