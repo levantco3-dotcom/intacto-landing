@@ -1,8 +1,8 @@
 const crypto = require('crypto');
 
 const ORDER_CREATE_MUTATION = `
-  mutation orderCreate($order: OrderCreateOrderInput!) {
-    orderCreate(order: $order) {
+  mutation orderCreate($order: OrderCreateOrderInput!, $options: OrderCreateOptionsInput) {
+    orderCreate(order: $order, options: $options) {
       order {
         id
         name
@@ -180,12 +180,17 @@ module.exports = async (req, res) => {
       countryCode: 'CO'
     },
     phone: telefono,
-    financialStatus: 'PENDING',
-    // Sin este campo, Shopify usa BYPASS por default y el pedido NUNCA
-    // descuenta inventario, sin importar el financialStatus. Esto aplica
-    // el descuento en la creación del pedido, respetando la política de
-    // "seguir vendiendo sin stock" que tenga configurada cada variante —
-    // independiente de si el pago es COD (PENDING) o anticipado.
+    financialStatus: 'PENDING'
+  };
+
+  // inventoryBehaviour vive en OrderCreateOptionsInput (argumento "options",
+  // hermano de "order" en la mutación) — NO es un campo de
+  // OrderCreateOrderInput. Sin esto, Shopify usa BYPASS por default y el
+  // pedido nunca descuenta inventario, sin importar el financialStatus.
+  // DECREMENT_OBEYING_POLICY aplica el descuento respetando la política de
+  // "seguir vendiendo sin stock" que tenga configurada cada variante —
+  // independiente de si el pago es COD (PENDING) o anticipado.
+  const options = {
     inventoryBehaviour: 'DECREMENT_OBEYING_POLICY'
   };
 
@@ -198,13 +203,14 @@ module.exports = async (req, res) => {
       },
       body: JSON.stringify({
         query: ORDER_CREATE_MUTATION,
-        variables: { order }
+        variables: { order, options }
       })
     });
 
     const result = await shopifyResponse.json();
 
     if (result.errors) {
+      console.error('create-order: error de GraphQL de Shopify', JSON.stringify(result.errors));
       res.status(502).json({ success: false, error: result.errors[0].message });
       return;
     }
@@ -212,6 +218,7 @@ module.exports = async (req, res) => {
     const { order: createdOrder, userErrors } = result.data.orderCreate;
 
     if (userErrors && userErrors.length > 0) {
+      console.error('create-order: userErrors de orderCreate', JSON.stringify(userErrors));
       res.status(422).json({ success: false, error: userErrors[0].message });
       return;
     }
@@ -240,6 +247,7 @@ module.exports = async (req, res) => {
 
     res.status(200).json({ success: true, orderNumber: createdOrder.name });
   } catch (err) {
+    console.error('create-order: excepción inesperada', err && err.message ? err.message : err);
     res.status(500).json({ success: false, error: 'No se pudo crear la orden' });
   }
 };
