@@ -345,7 +345,18 @@ function initStickyCtaVisibility() {
 
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
-      stickyCta.classList.toggle('is-visible', !entry.isIntersecting);
+      if (entry.isIntersecting) {
+        // La tarjeta está visible: la barra sticky se mantiene oculta.
+        stickyCta.classList.remove('is-visible');
+        return;
+      }
+
+      // No está intersectando, pero eso puede significar dos cosas muy
+      // distintas: (a) todavía no se llegó a ella (sigue más abajo, boundingClientRect.top > 0 —
+      // no se debe mostrar la barra todavía) o (b) ya se pasó de largo hacia
+      // arriba (boundingClientRect.top < 0 — ahí sí corresponde mostrarla).
+      const scrolledPast = entry.boundingClientRect.top < 0;
+      stickyCta.classList.toggle('is-visible', scrolledPast);
     });
   }, { threshold: 0.15 });
 

@@ -26,9 +26,10 @@
 .sticky-cta__stock {
   text-align: center;
   font-family: var(--font-body);
-  font-weight: 500;
-  font-size: 0.7rem;
-  color: var(--carbon-suave);
+  font-weight: 600;
+  font-size: 1.05rem;
+  line-height: 1.25;
+  color: var(--carbon);
 }
 
 .sticky-cta__stock-count {
@@ -56,7 +57,7 @@
 }
 
 body {
-  padding-bottom: 96px;
+  padding-bottom: 132px;
 }
 
 @media (min-width: 768px) {
