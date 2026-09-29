@@ -1,0 +1,123 @@
+/* ==========================================================================
+   INTACTO — legal.css (páginas legales standalone)
+   ========================================================================== */
+
+.legal-page-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 56px;
+  background-color: var(--blanco-calido);
+  border-bottom: 1px solid var(--crema-oscuro);
+}
+
+.legal-page-topbar__back {
+  position: absolute;
+  left: 16px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 0.875rem;
+  color: var(--carbon-suave);
+}
+
+.legal-page-topbar__back svg {
+  width: 18px;
+  height: 18px;
+}
+
+.legal-page-topbar__logo {
+  height: 32px;
+  width: auto;
+  border-radius: 50%;
+}
+
+.legal-page {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 32px 20px 16px;
+}
+
+.legal-page__title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.75rem, 6vw, 2.5rem);
+  letter-spacing: 0.01em;
+  color: var(--carbon);
+  margin-bottom: 16px;
+}
+
+.legal-page__intro {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: var(--carbon-suave);
+  margin-bottom: 32px;
+}
+
+.legal-page__section {
+  margin-bottom: 28px;
+}
+
+.legal-page__section h2 {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 1.0625rem;
+  color: var(--carbon);
+  margin-bottom: 8px;
+}
+
+.legal-page__section p {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: var(--carbon-suave);
+}
+
+.legal-page__section p + p {
+  margin-top: 10px;
+}
+
+.legal-page__section ul {
+  list-style: none;
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.legal-page__section li {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--carbon-suave);
+  padding-left: 18px;
+  position: relative;
+}
+
+.legal-page__section li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 9px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background-color: var(--cobre);
+}
+
+.legal-page a[href^="mailto:"] {
+  color: var(--cobre-oscuro);
+  text-decoration: underline;
+}
+
+@media (min-width: 768px) {
+  .legal-page {
+    padding: 48px 24px 24px;
+  }
+}

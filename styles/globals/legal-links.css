@@ -1,0 +1,30 @@
+/* ==========================================================================
+   INTACTO — legal-links.css
+   Fila de links legales (footer de landing, checkout y páginas legales)
+   ========================================================================== */
+
+.legal-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 6px 10px;
+  padding: 28px 20px calc(28px + env(safe-area-inset-bottom));
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  color: var(--carbon-suave);
+}
+
+.legal-links a {
+  color: inherit;
+}
+
+.legal-links a:hover,
+.legal-links a:focus-visible {
+  color: var(--cobre-oscuro);
+  text-decoration: underline;
+}
+
+.legal-links__separator {
+  color: var(--crema-oscuro);
+}
