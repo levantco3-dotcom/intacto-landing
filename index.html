@@ -18,22 +18,10 @@
   <link rel="stylesheet" href="styles/sections/resultados.css">
   <link rel="stylesheet" href="styles/sections/faq.css">
   <link rel="stylesheet" href="styles/sections/comparativa.css">
-  <link rel="stylesheet" href="styles/sections/checkout.css">
   <link rel="stylesheet" href="styles/globals/sticky-cta.css">
 
   <!-- Meta Pixel -->
-  <script>
-    var META_PIXEL_ID = '2177392419686177';
-
-    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-    n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
-    n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
-    t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
-    document,'script','https://connect.facebook.net/en_US/fbevents.js');
-
-    fbq('init', META_PIXEL_ID);
-    fbq('track', 'PageView');
-  </script>
+  <script src="scripts/meta-pixel-base.js"></script>
   <noscript>
     <img height="1" width="1" style="display:none" alt=""
       src="https://www.facebook.com/tr?id=2177392419686177&ev=PageView&noscript=1"
@@ -142,13 +130,13 @@
       </a>
 
       <div class="hero__card">
-        <button class="hero__cta" type="button" data-scroll-to="#pedido">
+        <a class="hero__cta" href="/checkout">
           <span class="hero__cta-label">Comprar ahora</span>
           <span class="hero__cta-price-row">
             <span class="hero__cta-price">$119.900</span>
             <span class="hero__cta-old">$199.900</span>
           </span>
-        </button>
+        </a>
 
         <p class="hero__shipping">
           <svg class="hero__shipping-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -369,55 +357,8 @@
     <div class="comparativa__panel" id="comparativa-panel"></div>
   </section>
 
-  <section class="checkout" id="pedido">
-    <div class="checkout__header">
-      <span class="checkout__eyebrow">PEDIDO</span>
-      <h2 class="checkout__title">Pide tu kit</h2>
-      <p class="checkout__subhead">Pago contra entrega. Sin letra pequeña.</p>
-      <p class="checkout__price">$119.900 · Pago al recibir</p>
-    </div>
-
-    <form class="checkout__form" id="checkout-form">
-      <div class="checkout__summary">
-        <img class="checkout__summary-thumb" src="assets/images/intacto-hero-01-kit.jpg.jpeg" alt="Kit INTACTO" loading="lazy">
-        <p class="checkout__summary-text">Kit INTACTO — $119.900</p>
-      </div>
-
-      <div class="checkout__field">
-        <label for="nombre">Nombre completo</label>
-        <input type="text" id="nombre" name="nombre" autocomplete="name" required>
-      </div>
-
-      <div class="checkout__field">
-        <label for="telefono">Teléfono</label>
-        <input type="tel" id="telefono" name="telefono" autocomplete="tel" inputmode="numeric" required>
-      </div>
-
-      <div class="checkout__field">
-        <label for="direccion">Dirección</label>
-        <input type="text" id="direccion" name="direccion" autocomplete="address-line1" required>
-      </div>
-
-      <div class="checkout__field">
-        <label for="ciudad">Ciudad</label>
-        <input type="text" id="ciudad" name="ciudad" autocomplete="address-level2" required>
-      </div>
-
-      <div class="checkout__trust">
-        <span class="checkout__trust-item"><span class="checkout__trust-icon" aria-hidden="true">🔒</span>Datos protegidos</span>
-        <span class="checkout__trust-item"><span class="checkout__trust-icon" aria-hidden="true">🚚</span>Envío a toda Colombia</span>
-        <span class="checkout__trust-item"><span class="checkout__trust-icon" aria-hidden="true">💵</span>Pagas al recibir</span>
-      </div>
-
-      <button class="checkout__submit" type="submit">Confirmar pedido</button>
-      <p class="checkout__note">Envío a toda Colombia · Garantía de 15 días</p>
-    </form>
-
-    <div class="checkout__result" id="checkout-result"></div>
-  </section>
-
   <div class="sticky-cta">
-    <button class="sticky-cta__button" type="button" data-scroll-to="#pedido">Quiero mi kit ahora</button>
+    <a class="sticky-cta__button" href="/checkout">Quiero mi kit ahora</a>
   </div>
 
   <a

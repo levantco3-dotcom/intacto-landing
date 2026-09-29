@@ -1,20 +1,3 @@
-// Datos del producto único, reutilizados por los eventos de Meta Pixel.
-const INTACTO_PRODUCT = {
-  contentName: 'Kit INTACTO',
-  contentType: 'product',
-  value: 119900,
-  currency: 'COP'
-};
-
-function trackFbq(eventName, params, options) {
-  if (typeof fbq !== 'function') return;
-  if (options) {
-    fbq('track', eventName, params, options);
-  } else {
-    fbq('track', eventName, params);
-  }
-}
-
 function trackViewContentOnce() {
   trackFbq('ViewContent', {
     content_name: INTACTO_PRODUCT.contentName,
@@ -22,56 +5,6 @@ function trackViewContentOnce() {
     value: INTACTO_PRODUCT.value,
     currency: INTACTO_PRODUCT.currency
   });
-}
-
-function initInitiateCheckoutTracking() {
-  const STORAGE_KEY = 'intacto_initiate_checkout_fired';
-  let fired = false;
-
-  try {
-    fired = sessionStorage.getItem(STORAGE_KEY) === '1';
-  } catch (err) {
-    // sessionStorage no disponible (modo privado, etc.) — se controla solo con la variable en memoria
-  }
-
-  function fireOnce() {
-    if (fired) return;
-    fired = true;
-
-    try {
-      sessionStorage.setItem(STORAGE_KEY, '1');
-    } catch (err) {
-      // no crítico si no se puede persistir
-    }
-
-    trackFbq('InitiateCheckout', {
-      content_name: INTACTO_PRODUCT.contentName,
-      content_type: INTACTO_PRODUCT.contentType,
-      value: INTACTO_PRODUCT.value,
-      currency: INTACTO_PRODUCT.currency
-    });
-  }
-
-  if (fired) return; // ya se disparó en una carga anterior de esta misma sesión
-
-  const form = document.getElementById('checkout-form');
-  if (form) {
-    form.querySelectorAll('input').forEach((input) => {
-      input.addEventListener('focus', fireOnce, { once: true });
-      input.addEventListener('input', fireOnce, { once: true });
-    });
-  }
-
-  document.querySelectorAll('[data-scroll-to="#pedido"]').forEach((el) => {
-    el.addEventListener('click', fireOnce);
-  });
-}
-
-function generateEventId() {
-  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
-    return crypto.randomUUID();
-  }
-  return `evt_${Date.now()}_${Math.random().toString(36).slice(2)}`;
 }
 
 function buildComparativaBlobCell(entry, isIntacto) {
@@ -434,15 +367,6 @@ document.addEventListener('DOMContentLoaded', () => {
   initStickyCtaVisibility();
   initInventoryDisplays();
   trackViewContentOnce();
-  initInitiateCheckoutTracking();
-
-  const scrollTargets = document.querySelectorAll('[data-scroll-to]');
-  scrollTargets.forEach((el) => {
-    el.addEventListener('click', () => {
-      const target = document.querySelector(el.getAttribute('data-scroll-to'));
-      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
-  });
 
   const escenas = document.querySelectorAll('.escena');
   if (escenas.length && 'IntersectionObserver' in window) {
@@ -458,99 +382,5 @@ document.addEventListener('DOMContentLoaded', () => {
     escenas.forEach((escena) => escenaObserver.observe(escena));
   } else {
     escenas.forEach((escena) => escena.classList.add('is-unlocked'));
-  }
-
-  const form = document.getElementById('checkout-form');
-  if (!form) return;
-
-  const telefonoInput = document.getElementById('telefono');
-  if (telefonoInput) {
-    telefonoInput.addEventListener('input', () => {
-      const digits = telefonoInput.value.replace(/\D/g, '');
-      const isInvalid = digits.length > 0 && digits.length !== 10;
-      telefonoInput.setAttribute('data-invalid', String(isInvalid));
-    });
-  }
-
-  const submitButton = form.querySelector('.checkout__submit');
-  const resultBox = document.getElementById('checkout-result');
-
-  form.addEventListener('submit', async (event) => {
-    event.preventDefault();
-
-    const nombre = form.nombre.value.trim();
-    const telefono = form.telefono.value.trim();
-    const direccion = form.direccion.value.trim();
-    const ciudad = form.ciudad.value.trim();
-
-    // event_id único por pedido: se manda al backend para que dispare la
-    // Purchase de servidor (Conversions API) con el MISMO id que usará el
-    // pixel del navegador, para que Meta deduplique un solo evento.
-    const eventId = generateEventId();
-
-    submitButton.disabled = true;
-    submitButton.textContent = 'Enviando...';
-
-    try {
-      const response = await fetch('/api/create-order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          nombre,
-          telefono,
-          direccion,
-          ciudad,
-          eventId,
-          eventSourceUrl: window.location.href
-        })
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        showResult('success', data.orderNumber);
-        form.reset();
-
-        // Purchase solo se dispara aquí porque el backend ya confirmó que
-        // la orden se creó en Shopify. El mismo eventId ya se usó del lado
-        // del servidor para la Conversions API — eventID aquí deduplica.
-        trackFbq('Purchase', {
-          content_name: INTACTO_PRODUCT.contentName,
-          content_type: INTACTO_PRODUCT.contentType,
-          value: INTACTO_PRODUCT.value,
-          currency: INTACTO_PRODUCT.currency
-        }, { eventID: eventId });
-      } else {
-        showResult('error');
-      }
-    } catch (err) {
-      showResult('error');
-    } finally {
-      submitButton.disabled = false;
-      submitButton.textContent = 'Confirmar pedido';
-    }
-  });
-
-  function showResult(state, orderNumber) {
-    form.hidden = true;
-    resultBox.setAttribute('data-state', state);
-
-    if (state === 'success') {
-      const whatsappMessage = encodeURIComponent(`Hola, acabo de hacer el pedido ${orderNumber}`);
-      resultBox.innerHTML = `
-        <p class="checkout__result-title">Pedido confirmado — ${orderNumber}</p>
-        <p class="checkout__result-reinforcement">Tus tenis te lo van a agradecer. Bienvenido a INTACTO.</p>
-        <p class="checkout__result-text">Te vamos a escribir por WhatsApp en las próximas horas para confirmar tu dirección de entrega.</p>
-        <a class="checkout__result-whatsapp" href="https://wa.me/573203886918?text=${whatsappMessage}" target="_blank" rel="noopener noreferrer">Escríbenos por WhatsApp</a>
-      `;
-    } else {
-      resultBox.innerHTML = `
-        <p class="checkout__result-title">No pudimos procesar tu pedido</p>
-        <p class="checkout__result-text">Escríbenos por WhatsApp y lo confirmamos ahí mismo.</p>
-        <a class="checkout__result-whatsapp" href="https://wa.me/573203886918?text=${encodeURIComponent('Hola, quiero hacer un pedido de INTACTO')}" target="_blank" rel="noopener noreferrer">Escríbenos por WhatsApp</a>
-      `;
-    }
-
-    resultBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 });

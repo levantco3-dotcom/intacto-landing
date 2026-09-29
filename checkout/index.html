@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Confirma tu pedido — INTACTO</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;900&family=Barlow:wght@400;500;700&family=Cormorant+Garamond:ital@1&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="../styles/base.css">
+  <link rel="stylesheet" href="../styles/globals/whatsapp-float.css">
+  <link rel="stylesheet" href="../styles/pages/checkout.css">
+
+  <!-- Meta Pixel -->
+  <script src="../scripts/meta-pixel-base.js"></script>
+  <noscript>
+    <img height="1" width="1" style="display:none" alt=""
+      src="https://www.facebook.com/tr?id=2177392419686177&ev=PageView&noscript=1"
+    />
+  </noscript>
+  <!-- Fin Meta Pixel -->
+</head>
+<body>
+
+  <header class="checkout-page-topbar">
+    <a class="checkout-page-topbar__back" href="/">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M15 6l-6 6 6 6"></path>
+      </svg>
+      Volver
+    </a>
+    <img class="checkout-page-topbar__logo" src="../assets/images/logo-intacto.jpg.jpeg" alt="INTACTO">
+  </header>
+
+  <main class="checkout-page">
+    <h1 class="checkout-page__title">Confirma tu pedido</h1>
+    <p class="checkout-page__subtitle">Pago contra entrega. Sin letra pequeña.</p>
+
+    <section class="checkout-page__summary">
+      <details>
+        <summary class="checkout-page__summary-row">
+          <img class="checkout-page__summary-thumb" src="../assets/images/intacto-hero-01-kit.jpg.jpeg" alt="Kit INTACTO">
+          <span class="checkout-page__summary-info">
+            <span class="checkout-page__summary-name">Kit INTACTO</span>
+            <span class="checkout-page__summary-meta">
+              1 unidad · Ver detalle
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="m6 9 6 6 6-6"></path>
+              </svg>
+            </span>
+          </span>
+          <span class="checkout-page__summary-price">
+            <span class="checkout-page__summary-price-old">$199.900</span>
+            <span class="checkout-page__summary-price-current">$119.900</span>
+          </span>
+        </summary>
+
+        <div class="checkout-page__summary-expand">
+          <ul class="checkout-page__summary-list">
+            <li>Espuma limpiadora</li>
+            <li>Spray antiolores</li>
+            <li>Cepillo</li>
+            <li>Toalla de microfibra</li>
+          </ul>
+          <p class="checkout-page__summary-note">Envío gratis a toda Colombia · Garantía de 15 días</p>
+        </div>
+      </details>
+    </section>
+
+    <form class="checkout-page__form" id="checkout-form">
+      <section>
+        <h2 class="checkout-page__section-title">Datos de contacto y entrega</h2>
+
+        <div class="checkout-page__fields">
+          <div class="checkout-page__field">
+            <label for="nombre">Nombre completo</label>
+            <input type="text" id="nombre" name="nombre" autocomplete="name" required>
+          </div>
+
+          <div class="checkout-page__field">
+            <label for="telefono">Teléfono</label>
+            <input type="tel" id="telefono" name="telefono" autocomplete="tel" inputmode="numeric" required>
+          </div>
+
+          <div class="checkout-page__field">
+            <label for="direccion">Dirección</label>
+            <input type="text" id="direccion" name="direccion" autocomplete="address-line1" required>
+          </div>
+
+          <div class="checkout-page__field">
+            <label for="ciudad">Ciudad</label>
+            <input type="text" id="ciudad" name="ciudad" autocomplete="address-level2" required>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="checkout-page__section-title">Método de pago</h2>
+
+        <div class="checkout-page__payment-badges">
+          <span class="checkout-page__payment-chip">
+            <img class="checkout-page__payment-logo" src="../assets/images/logo%20visa%20mastercard.jpg" alt="Visa / Mastercard" loading="lazy">
+          </span>
+          <span class="checkout-page__payment-chip">
+            <img class="checkout-page__payment-logo" src="../assets/images/logo-nequi.jpg" alt="Nequi" loading="lazy">
+          </span>
+          <span class="checkout-page__payment-chip">
+            <img class="checkout-page__payment-logo" src="../assets/images/Bre-B-logo.jpg" alt="Bre-B" loading="lazy">
+          </span>
+          <span class="checkout-page__payment-chip checkout-page__payment-chip--text">Contra entrega</span>
+        </div>
+
+        <p class="checkout-page__payment-note">Pagas en efectivo o con datáfono cuando recibas tu pedido — sin adelantos.</p>
+      </section>
+
+      <button class="checkout-page__submit" type="submit">Confirmar pedido</button>
+      <p class="checkout-page__note">🔒 Datos protegidos · Envío a toda Colombia · Garantía de 15 días</p>
+    </form>
+
+    <div class="checkout-page__result" id="checkout-result"></div>
+  </main>
+
+  <a
+    class="whatsapp-float"
+    href="https://wa.me/573203886918"
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label="Escríbenos por WhatsApp"
+  >
+    <svg viewBox="0 0 24 24" fill="#FFFFFF" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.9-4.45 9.9-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2zm5.8 14.13c-.24.68-1.4 1.31-1.93 1.35-.5.05-.99.24-3.34-.7-2.82-1.13-4.63-4-4.77-4.19-.14-.19-1.14-1.51-1.14-2.88 0-1.37.72-2.04.97-2.32.25-.28.55-.35.73-.35.19 0 .37 0 .53.01.17.01.4-.06.62.48.24.58.8 1.99.87 2.13.07.14.11.31.02.5-.09.19-.14.31-.27.47-.14.16-.29.36-.41.48-.14.14-.28.29-.12.57.16.28.71 1.18 1.53 1.91 1.05.94 1.94 1.24 2.22 1.38.28.14.44.12.6-.07.16-.19.68-.79.87-1.06.19-.28.37-.23.62-.14.26.09 1.63.77 1.91.91.28.14.47.21.53.33.07.12.07.68-.17 1.36z"/>
+    </svg>
+  </a>
+
+  <script src="../scripts/checkout-page.js"></script>
+</body>
+</html>
