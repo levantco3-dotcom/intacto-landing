@@ -136,6 +136,13 @@
   cursor: not-allowed;
 }
 
+.wheel-modal__error {
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  color: #b3261e;
+  margin-top: 10px;
+}
+
 .wheel-modal__result {
   display: none;
 }

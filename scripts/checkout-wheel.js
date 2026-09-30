@@ -270,6 +270,11 @@
     spinButton.textContent = 'Girar la ruleta';
     spinPrompt.appendChild(spinButton);
 
+    const errorText = document.createElement('p');
+    errorText.className = 'wheel-modal__error';
+    errorText.hidden = true;
+    spinPrompt.appendChild(errorText);
+
     const resultBox = document.createElement('div');
     resultBox.className = 'wheel-modal__result';
 
@@ -303,10 +308,11 @@
     function doSpin() {
       spinButton.disabled = true;
       spinButton.textContent = 'Girando...';
+      errorText.hidden = true;
 
       fetch('/api/wheel-spin', { method: 'POST' })
         .then((response) => {
-          if (!response.ok) throw new Error('No se pudo girar');
+          if (!response.ok) throw new Error(`No se pudo girar (HTTP ${response.status})`);
           return response.json();
         })
         .then((data) => {
@@ -324,9 +330,11 @@
             applyWonPrizes();
           }, 4700);
         })
-        .catch(() => {
+        .catch((err) => {
           spinButton.disabled = false;
           spinButton.textContent = 'Girar la ruleta';
+          errorText.textContent = `No pudimos girar la ruleta: ${err.message || 'error desconocido'}. Intenta de nuevo.`;
+          errorText.hidden = false;
         });
     }
 
