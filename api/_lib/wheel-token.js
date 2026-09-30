@@ -11,7 +11,7 @@ const WHEEL_PRIZES = [
 ];
 
 const TOKEN_TTL_MS = 60 * 60 * 1000; // 1 hora — más que suficiente para terminar un checkout
-const MAX_SPINS_PER_SESSION = 2;
+const MAX_SPINS_PER_SESSION = 1;
 
 function getSecret() {
   const secret = process.env.WHEEL_SIGNING_SECRET;

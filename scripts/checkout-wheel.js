@@ -1,7 +1,7 @@
 (function () {
   const SPINS_USED_KEY = 'intacto_wheel_spins_used';
   const PRIZES_WON_KEY = 'intacto_wheel_prizes';
-  const MAX_SPINS = 2;
+  const MAX_SPINS = 1;
   const SVG_NS = 'http://www.w3.org/2000/svg';
 
   // Copia LOCAL, solo para dibujar los segmentos a escala real. El sorteo
@@ -279,18 +279,12 @@
     const resultText = document.createElement('p');
     resultText.className = 'wheel-modal__result-text';
 
-    const spinAgainButton = document.createElement('button');
-    spinAgainButton.type = 'button';
-    spinAgainButton.className = 'wheel-modal__spin-button';
-    spinAgainButton.textContent = 'Girar de nuevo';
-    spinAgainButton.hidden = true;
-
     const resultButton = document.createElement('button');
     resultButton.type = 'button';
     resultButton.className = 'wheel-modal__result-button';
     resultButton.textContent = 'Continuar con mi pedido';
 
-    resultBox.append(resultTitle, resultText, spinAgainButton, resultButton);
+    resultBox.append(resultTitle, resultText, resultButton);
     modal.append(closeBtn, title, subtitle, wheelWrap, spinPrompt, resultBox);
     overlay.appendChild(modal);
     root.appendChild(overlay);
@@ -308,7 +302,6 @@
 
     function doSpin() {
       spinButton.disabled = true;
-      spinAgainButton.disabled = true;
       spinButton.textContent = 'Girando...';
 
       fetch('/api/wheel-spin', { method: 'POST' })
@@ -329,102 +322,34 @@
             setSpinsUsed(data.spinsUsed);
             savePrizeWon(data.prizeId, data.token);
             applyWonPrizes();
-
-            spinAgainButton.hidden = data.spinsRemaining <= 0;
-            spinAgainButton.disabled = false;
-            spinButton.disabled = false;
-            spinButton.textContent = 'Girar la ruleta';
           }, 4700);
         })
         .catch(() => {
           spinButton.disabled = false;
-          spinAgainButton.disabled = false;
           spinButton.textContent = 'Girar la ruleta';
         });
     }
 
+    // Un solo giro total, gane o pierda — no hay "girar de nuevo".
     spinButton.addEventListener('click', doSpin);
-    spinAgainButton.addEventListener('click', () => {
-      modal.classList.remove('is-result');
-      doSpin();
-    });
 
     requestAnimationFrame(() => overlay.classList.add('is-visible'));
   }
 
-  // -- Disparador: intento de salida --------------------------------------
+  // -- Disparador: únicamente tiempo en el formulario -------------------
   //
-  // Todo el tráfico llega desde Meta Ads, así que la enorme mayoría de los
-  // clientes ven el checkout DENTRO del navegador in-app de Facebook/
-  // Instagram (el WebView que abre el anuncio), no en Chrome/Safari real.
-  // Ese navegador in-app intercepta el gesto/botón de "atrás" a nivel de su
-  // propia interfaz (para cerrar el WebView) ANTES de que la página reciba
-  // el evento — por eso el truco de pushState/popstate nunca llega a
-  // dispararse ahí, sin importar qué tan bien esté implementado: no es un
-  // bug de este código, es una limitación del navegador in-app.
-  //
-  // La señal confiable en mobile (funciona dentro de cualquier WebView,
-  // porque es scroll normal del documento, no navegación del navegador) es
-  // detectar cuando el cliente, después de haber bajado a ver el
-  // formulario, empieza a subir el scroll de nuevo — el equivalente movil
-  // al gesto de "llevar el mouse hacia la pestaña/dirección" en desktop.
-  // El botón atrás se deja como señal extra (gratis, sin costo) para el
-  // porcentaje de clientes que sí estén en un navegador real.
-  //
-  // Diseño de UN SOLO INTENTO: la primera señal que ocurra dispara el
-  // modal y desarma todas las señales para siempre en esta carga de
-  // página — si el cliente cierra la ruleta e intenta irse de nuevo, sale
-  // normal. El segundo giro (si queda) se resuelve con el botón "Girar de
-  // nuevo" DENTRO del modal ya abierto, nunca disparando un nuevo intento
-  // de salida.
+  // Por decisión explícita: la ruleta aparece solo cuando el cliente lleva
+  // más de TRIGGER_DELAY_MS en el checkout sin haberlo completado. Nada de
+  // scroll ni botón atrás — un solo temporizador, sin señales compitiendo.
 
-  const SCROLL_ENGAGEMENT_PX = 150; // cuánto tuvo que bajar para "haber visto" el form
-  const SCROLL_UP_INTENT_PX = 80; // cuánto tiene que subir desde su punto más bajo para contar como intento de salida
+  const TRIGGER_DELAY_MS = 40000;
 
   function initTriggers() {
     applyWonPrizes();
 
     if (getSpinsUsed() >= MAX_SPINS) return;
 
-    let triggered = false;
-    let maxScrollY = window.scrollY || 0;
-
-    function trigger() {
-      if (triggered) return;
-      triggered = true;
-      window.removeEventListener('popstate', onPopState);
-      window.removeEventListener('scroll', onScroll);
-      buildModal();
-    }
-
-    function onPopState() {
-      trigger();
-    }
-
-    function onScroll() {
-      const y = window.scrollY || 0;
-      if (y > maxScrollY) maxScrollY = y;
-      if (maxScrollY >= SCROLL_ENGAGEMENT_PX && (maxScrollY - y) >= SCROLL_UP_INTENT_PX) {
-        trigger();
-      }
-    }
-
-    // Truco estándar para "exit intent" con botón de retroceso: se agrega
-    // una entrada extra al historial para que el primer back-press dispare
-    // un popstate en esta misma página en vez de sacar al usuario del
-    // checkout de inmediato. Funciona en navegadores reales; en el WebView
-    // in-app de Facebook/Instagram no llega a dispararse (ver nota arriba).
-    window.history.pushState(null, '', window.location.href);
-    window.addEventListener('popstate', onPopState);
-    window.addEventListener('scroll', onScroll, { passive: true });
-
-    // bfcache (muy relevante en iOS Safari, también ocurre en Chrome
-    // móvil): si el navegador restaura esta página desde caché en vez de
-    // recargarla, popstate puede no dispararse de forma confiable. Si eso
-    // ocurre y la ruleta todavía no se mostró, se dispara directamente acá.
-    window.addEventListener('pageshow', (event) => {
-      if (event.persisted) trigger();
-    });
+    window.setTimeout(buildModal, TRIGGER_DELAY_MS);
   }
 
   document.addEventListener('DOMContentLoaded', initTriggers);
