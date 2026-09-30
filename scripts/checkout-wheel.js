@@ -2,7 +2,7 @@
   const SPINS_USED_KEY = 'intacto_wheel_spins_used';
   const PRIZES_WON_KEY = 'intacto_wheel_prizes';
   const MAX_SPINS = 2;
-  const IDLE_MS = 22000;
+  const IDLE_MS = 20000;
   const SVG_NS = 'http://www.w3.org/2000/svg';
 
   // Copia LOCAL, solo para dibujar los segmentos a escala real. El sorteo
@@ -229,7 +229,7 @@
 
   // -- Modal -----------------------------------------------------------------
 
-  function buildModal(onClose) {
+  function buildModal() {
     const root = document.getElementById('wheel-modal-root');
     if (!root) return;
 
@@ -298,10 +298,7 @@
 
     function close() {
       overlay.classList.remove('is-visible');
-      window.setTimeout(() => {
-        overlay.remove();
-        if (onClose) onClose();
-      }, 250);
+      window.setTimeout(() => overlay.remove(), 250);
     }
 
     closeBtn.addEventListener('click', close);
@@ -357,38 +354,42 @@
   }
 
   // -- Disparadores: popstate (retroceso) o inactividad ----------------------
+  //
+  // Diseño deliberadamente de UN SOLO INTENTO: apenas se dispara CUALQUIERA
+  // de las dos señales (20s de inactividad o el primer back-press), se
+  // muestra el modal UNA vez y se desarman ambas señales para siempre en
+  // esta carga de página — no se vuelven a rearmar al cerrar el modal. El
+  // segundo giro (si queda) se resuelve con el botón "Girar de nuevo"
+  // DENTRO del mismo modal, nunca disparando un nuevo intento de salida.
+  // La versión anterior re-armaba pushState/popstate de forma recursiva
+  // cada vez que el modal se cerraba, lo que apilaba entradas de historial
+  // y, en combinación con el back-forward cache del navegador, producía el
+  // comportamiento inconsistente reportado ("a veces sí, a veces no").
 
   function initTriggers() {
     applyWonPrizes();
-    armSignals();
-  }
 
-  function armSignals() {
     if (getSpinsUsed() >= MAX_SPINS) return;
 
     let triggered = false;
     let idleTimer = window.setTimeout(trigger, IDLE_MS);
 
-    function cleanup() {
-      window.clearTimeout(idleTimer);
-      window.removeEventListener('popstate', trigger);
-    }
-
     function trigger() {
-      if (triggered || getSpinsUsed() >= MAX_SPINS) return;
+      if (triggered) return;
       triggered = true;
-      cleanup();
-      buildModal(() => {
-        // Al cerrar, si todavía quedan giros (el usuario cerró sin agotar
-        // los 2), se vuelve a armar el disparador para un próximo intento
-        // de salida.
-        if (getSpinsUsed() < MAX_SPINS) armSignals();
-      });
+      window.clearTimeout(idleTimer);
+      window.removeEventListener('popstate', onPopState);
+      buildModal();
     }
 
     function resetIdleTimer() {
+      if (triggered) return;
       window.clearTimeout(idleTimer);
       idleTimer = window.setTimeout(trigger, IDLE_MS);
+    }
+
+    function onPopState() {
+      trigger();
     }
 
     const form = document.getElementById('checkout-form');
@@ -402,9 +403,19 @@
     // Truco estándar para "exit intent" con botón de retroceso: se agrega
     // una entrada extra al historial para que el primer back-press dispare
     // un popstate en esta misma página en vez de sacar al usuario del
-    // checkout de inmediato. Un segundo back-press sí lo deja salir.
-    window.history.pushState({ intactoWheelGuard: true }, '', window.location.href);
-    window.addEventListener('popstate', trigger);
+    // checkout de inmediato.
+    window.history.pushState(null, '', window.location.href);
+    window.addEventListener('popstate', onPopState);
+
+    // bfcache (muy relevante en iOS Safari, también ocurre en Chrome
+    // móvil): si el navegador restaura esta página desde caché en vez de
+    // recargarla, "DOMContentLoaded" no vuelve a dispararse y el timer de
+    // inactividad puede quedar en un estado inconsistente (pausado durante
+    // el tiempo que la página estuvo en bfcache). Al restaurar, si todavía
+    // no se disparó nada, se reinicia el conteo de inactividad desde cero.
+    window.addEventListener('pageshow', (event) => {
+      if (event.persisted) resetIdleTimer();
+    });
   }
 
   document.addEventListener('DOMContentLoaded', initTriggers);
