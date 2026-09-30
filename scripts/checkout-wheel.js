@@ -352,19 +352,34 @@
     requestAnimationFrame(() => overlay.classList.add('is-visible'));
   }
 
-  // -- Disparador: EXCLUSIVAMENTE el botón atrás (popstate) ------------------
+  // -- Disparador: intento de salida --------------------------------------
   //
-  // Por decisión explícita: la ruleta es una estrategia de exit-intent, así
-  // que se reserva solo para el momento en que el cliente intenta irse — no
-  // compite con un timer de inactividad que podría dispararse mientras el
-  // cliente todavía está llenando el formulario (eso le restaba el único
-  // intento disponible antes de que el cliente llegara a presionar atrás).
+  // Todo el tráfico llega desde Meta Ads, así que la enorme mayoría de los
+  // clientes ven el checkout DENTRO del navegador in-app de Facebook/
+  // Instagram (el WebView que abre el anuncio), no en Chrome/Safari real.
+  // Ese navegador in-app intercepta el gesto/botón de "atrás" a nivel de su
+  // propia interfaz (para cerrar el WebView) ANTES de que la página reciba
+  // el evento — por eso el truco de pushState/popstate nunca llega a
+  // dispararse ahí, sin importar qué tan bien esté implementado: no es un
+  // bug de este código, es una limitación del navegador in-app.
   //
-  // Diseño de UN SOLO INTENTO: el primer back-press dispara el modal y
-  // desarma el listener para siempre en esta carga de página — si el
-  // cliente cierra la ruleta y presiona atrás de nuevo, sale normal. El
-  // segundo giro (si queda) se resuelve con el botón "Girar de nuevo" DENTRO
-  // del modal ya abierto, nunca disparando un nuevo intento de salida.
+  // La señal confiable en mobile (funciona dentro de cualquier WebView,
+  // porque es scroll normal del documento, no navegación del navegador) es
+  // detectar cuando el cliente, después de haber bajado a ver el
+  // formulario, empieza a subir el scroll de nuevo — el equivalente movil
+  // al gesto de "llevar el mouse hacia la pestaña/dirección" en desktop.
+  // El botón atrás se deja como señal extra (gratis, sin costo) para el
+  // porcentaje de clientes que sí estén en un navegador real.
+  //
+  // Diseño de UN SOLO INTENTO: la primera señal que ocurra dispara el
+  // modal y desarma todas las señales para siempre en esta carga de
+  // página — si el cliente cierra la ruleta e intenta irse de nuevo, sale
+  // normal. El segundo giro (si queda) se resuelve con el botón "Girar de
+  // nuevo" DENTRO del modal ya abierto, nunca disparando un nuevo intento
+  // de salida.
+
+  const SCROLL_ENGAGEMENT_PX = 150; // cuánto tuvo que bajar para "haber visto" el form
+  const SCROLL_UP_INTENT_PX = 80; // cuánto tiene que subir desde su punto más bajo para contar como intento de salida
 
   function initTriggers() {
     applyWonPrizes();
@@ -372,11 +387,13 @@
     if (getSpinsUsed() >= MAX_SPINS) return;
 
     let triggered = false;
+    let maxScrollY = window.scrollY || 0;
 
     function trigger() {
       if (triggered) return;
       triggered = true;
       window.removeEventListener('popstate', onPopState);
+      window.removeEventListener('scroll', onScroll);
       buildModal();
     }
 
@@ -384,12 +401,22 @@
       trigger();
     }
 
+    function onScroll() {
+      const y = window.scrollY || 0;
+      if (y > maxScrollY) maxScrollY = y;
+      if (maxScrollY >= SCROLL_ENGAGEMENT_PX && (maxScrollY - y) >= SCROLL_UP_INTENT_PX) {
+        trigger();
+      }
+    }
+
     // Truco estándar para "exit intent" con botón de retroceso: se agrega
     // una entrada extra al historial para que el primer back-press dispare
     // un popstate en esta misma página en vez de sacar al usuario del
-    // checkout de inmediato.
+    // checkout de inmediato. Funciona en navegadores reales; en el WebView
+    // in-app de Facebook/Instagram no llega a dispararse (ver nota arriba).
     window.history.pushState(null, '', window.location.href);
     window.addEventListener('popstate', onPopState);
+    window.addEventListener('scroll', onScroll, { passive: true });
 
     // bfcache (muy relevante en iOS Safari, también ocurre en Chrome
     // móvil): si el navegador restaura esta página desde caché en vez de
