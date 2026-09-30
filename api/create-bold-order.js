@@ -2,10 +2,10 @@ const { verifyToken } = require('./_lib/wheel-token');
 
 const SECOND_KIT_PRICE_COP = '83930'; // $119.900 con 30% off, como string per MoneyBagInput
 
-const DRAFT_ORDER_CREATE_MUTATION = `
-  mutation draftOrderCreate($input: DraftOrderInput!) {
-    draftOrderCreate(input: $input) {
-      draftOrder {
+const ORDER_CREATE_MUTATION = `
+  mutation orderCreate($order: OrderCreateOrderInput!, $options: OrderCreateOptionsInput) {
+    orderCreate(order: $order, options: $options) {
+      order {
         id
         name
       }
@@ -63,11 +63,20 @@ module.exports = async (req, res) => {
     lineItems.push({
       variantId: `gid://shopify/ProductVariant/${variantId}`,
       quantity: 1,
-      originalUnitPrice: SECOND_KIT_PRICE_COP // Decimal en la unidad mayor de la moneda (COP no tiene centavos)
+      priceSet: {
+        shopMoney: { amount: SECOND_KIT_PRICE_COP, currencyCode: 'COP' }
+      }
     });
   }
 
-  const input = {
+  // Orden real desde ya, con financialStatus PENDING — igual que el flujo
+  // COD, pero acá se marca PAID vía orderMarkAsPaid cuando llegue el
+  // webhook de Bold confirmando el pago (api/bold-webhook.js). Se evitó
+  // Draft Orders porque requiere el scope write_draft_orders, que el
+  // token actual no tiene y no se puede agregar sin el proyecto local del
+  // Shopify CLI (no disponible). orderMarkAsPaid solo necesita
+  // write_orders, que el token ya tiene.
+  const order = {
     lineItems,
     email,
     shippingAddress: {
@@ -77,16 +86,22 @@ module.exports = async (req, res) => {
       city: ciudad,
       phone: telefono,
       countryCode: 'CO'
-    }
+    },
+    phone: telefono,
+    financialStatus: 'PENDING'
   };
 
   const tags = ['bold-pendiente'];
   prizeIds.forEach((id) => tags.push(`ruleta:${id}`));
-  input.tags = tags;
+  order.tags = tags;
 
   if (prizeIds.includes('garantia-extra')) {
-    input.note = 'Premio de la ruleta: +5 días extra de garantía (20 días en total desde la entrega).';
+    order.note = 'Premio de la ruleta: +5 días extra de garantía (20 días en total desde la entrega).';
   }
+
+  const options = {
+    inventoryBehaviour: 'DECREMENT_OBEYING_POLICY'
+  };
 
   const amount = wonSecondKitDiscount ? 119900 + Number(SECOND_KIT_PRICE_COP) : 119900;
 
@@ -98,31 +113,31 @@ module.exports = async (req, res) => {
         'X-Shopify-Access-Token': accessToken
       },
       body: JSON.stringify({
-        query: DRAFT_ORDER_CREATE_MUTATION,
-        variables: { input }
+        query: ORDER_CREATE_MUTATION,
+        variables: { order, options }
       })
     });
 
     const result = await shopifyResponse.json();
 
     if (result.errors) {
-      console.error('create-bold-draft-order: error de GraphQL de Shopify', JSON.stringify(result.errors));
+      console.error('create-bold-order: error de GraphQL de Shopify', JSON.stringify(result.errors));
       res.status(502).json({ success: false, error: result.errors[0].message });
       return;
     }
 
-    const { draftOrder, userErrors } = result.data.draftOrderCreate;
+    const { order: createdOrder, userErrors } = result.data.orderCreate;
 
     if (userErrors && userErrors.length > 0) {
-      console.error('create-bold-draft-order: userErrors de draftOrderCreate', JSON.stringify(userErrors));
+      console.error('create-bold-order: userErrors de orderCreate', JSON.stringify(userErrors));
       res.status(422).json({ success: false, error: userErrors[0].message });
       return;
     }
 
     // Bold exige un order-id alfanumérico de máx 60 caracteres: se usa
-    // solo la parte numérica del GID del draft order (ej. "123456789"),
-    // que alcanza para reconstruir el GID completo cuando llegue el webhook.
-    const numericId = draftOrder.id.split('/').pop();
+    // solo la parte numérica del GID de la orden (ej. "123456789"), que
+    // alcanza para reconstruir el GID completo cuando llegue el webhook.
+    const numericId = createdOrder.id.split('/').pop();
 
     res.status(200).json({
       success: true,
@@ -132,7 +147,7 @@ module.exports = async (req, res) => {
       apiKey: boldApiKey
     });
   } catch (err) {
-    console.error('create-bold-draft-order: excepción inesperada', err && err.message ? err.message : err);
+    console.error('create-bold-order: excepción inesperada', err && err.message ? err.message : err);
     res.status(500).json({ success: false, error: 'No se pudo preparar el pago' });
   }
 };

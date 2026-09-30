@@ -54,7 +54,7 @@
       const wheelState = window.INTACTO_WHEEL_STATE || {};
 
       try {
-        const draftResponse = await fetch('/api/create-bold-draft-order', {
+        const draftResponse = await fetch('/api/create-bold-order', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

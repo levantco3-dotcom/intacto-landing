@@ -3,11 +3,11 @@ const { verifyWebhookSignature, readRawBody } = require('./_lib/bold');
 
 const META_GRAPH_VERSION = 'v21.0';
 
-const DRAFT_ORDER_STATUS_QUERY = `
-  query draftOrderStatus($id: ID!) {
-    draftOrder(id: $id) {
+const ORDER_STATUS_QUERY = `
+  query orderStatus($id: ID!) {
+    order(id: $id) {
       id
-      status
+      displayFinancialStatus
       email
       shippingAddress {
         firstName
@@ -19,16 +19,12 @@ const DRAFT_ORDER_STATUS_QUERY = `
   }
 `;
 
-const DRAFT_ORDER_COMPLETE_MUTATION = `
-  mutation draftOrderComplete($id: ID!) {
-    draftOrderComplete(id: $id, paymentPending: false) {
-      draftOrder {
+const ORDER_MARK_AS_PAID_MUTATION = `
+  mutation orderMarkAsPaid($input: OrderMarkAsPaidInput!) {
+    orderMarkAsPaid(input: $input) {
+      order {
         id
-        status
-        order {
-          id
-          name
-        }
+        displayFinancialStatus
       }
       userErrors {
         field
@@ -188,44 +184,44 @@ module.exports = async (req, res) => {
     return;
   }
 
-  const draftOrderGid = `gid://shopify/DraftOrder/${reference}`;
+  const orderGid = `gid://shopify/Order/${reference}`;
 
   try {
-    const statusResult = await shopifyGraphQL(DRAFT_ORDER_STATUS_QUERY, { id: draftOrderGid });
+    const statusResult = await shopifyGraphQL(ORDER_STATUS_QUERY, { id: orderGid });
 
-    if (statusResult.errors || !statusResult.data || !statusResult.data.draftOrder) {
-      console.error('bold-webhook: no se encontró el draft order', reference, JSON.stringify(statusResult.errors || statusResult));
-      res.status(200).json({ received: true, warning: 'draft order no encontrado' });
+    if (statusResult.errors || !statusResult.data || !statusResult.data.order) {
+      console.error('bold-webhook: no se encontró la orden', reference, JSON.stringify(statusResult.errors || statusResult));
+      res.status(200).json({ received: true, warning: 'orden no encontrada' });
       return;
     }
 
-    const draftOrder = statusResult.data.draftOrder;
+    const order = statusResult.data.order;
 
-    if (draftOrder.status === 'COMPLETED') {
+    if (String(order.displayFinancialStatus).toUpperCase() === 'PAID') {
       // Reintento de Bold sobre un webhook que ya procesamos: idempotente,
-      // no se vuelve a completar ni se reenvía el evento a Meta.
+      // no se vuelve a marcar como pagada ni se reenvía el evento a Meta.
       res.status(200).json({ received: true, alreadyProcessed: true });
       return;
     }
 
-    const completeResult = await shopifyGraphQL(DRAFT_ORDER_COMPLETE_MUTATION, { id: draftOrderGid });
+    const markPaidResult = await shopifyGraphQL(ORDER_MARK_AS_PAID_MUTATION, { input: { id: orderGid } });
 
-    if (completeResult.errors) {
-      console.error('bold-webhook: error de GraphQL completando el draft order', JSON.stringify(completeResult.errors));
-      res.status(500).json({ error: 'No se pudo completar el pedido' });
+    if (markPaidResult.errors) {
+      console.error('bold-webhook: error de GraphQL marcando la orden como pagada', JSON.stringify(markPaidResult.errors));
+      res.status(500).json({ error: 'No se pudo confirmar el pago' });
       return;
     }
 
-    const { userErrors } = completeResult.data.draftOrderComplete;
+    const { userErrors } = markPaidResult.data.orderMarkAsPaid;
 
     if (userErrors && userErrors.length > 0) {
-      console.error('bold-webhook: userErrors completando el draft order', JSON.stringify(userErrors));
-      res.status(500).json({ error: 'No se pudo completar el pedido' });
+      console.error('bold-webhook: userErrors marcando la orden como pagada', JSON.stringify(userErrors));
+      res.status(500).json({ error: 'No se pudo confirmar el pago' });
       return;
     }
 
     const amountData = payload.data.amount || {};
-    const address = draftOrder.shippingAddress || {};
+    const address = order.shippingAddress || {};
 
     await sendMetaPurchaseEvent({
       eventId: payload.id,
@@ -236,7 +232,7 @@ module.exports = async (req, res) => {
       lastName: address.lastName,
       phone: address.phone,
       city: address.city,
-      email: draftOrder.email
+      email: order.email
     });
 
     res.status(200).json({ received: true });
