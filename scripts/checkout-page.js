@@ -47,6 +47,11 @@ document.addEventListener('DOMContentLoaded', () => {
     submitButton.disabled = true;
     submitButton.textContent = 'Enviando...';
 
+    // Si la ruleta de exit-intent ya se giró en esta sesión, se manda el
+    // token firmado (nunca el prizeId "en crudo") para que el servidor lo
+    // vuelva a verificar antes de aplicar cualquier premio.
+    const wheelState = window.INTACTO_WHEEL_STATE || {};
+
     try {
       const response = await fetch('/api/create-order', {
         method: 'POST',
@@ -57,7 +62,9 @@ document.addEventListener('DOMContentLoaded', () => {
           direccion,
           ciudad,
           eventId,
-          eventSourceUrl: window.location.href
+          eventSourceUrl: window.location.href,
+          wheelToken: wheelState.token,
+          wantsSecondKit: wheelState.wantsSecondKit
         })
       });
 

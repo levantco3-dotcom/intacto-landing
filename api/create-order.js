@@ -1,4 +1,7 @@
 const crypto = require('crypto');
+const { verifyToken } = require('./_lib/wheel-token');
+
+const SECOND_KIT_PRICE_COP = '83930'; // $119.900 con 30% off, como string per MoneyBagInput
 
 const ORDER_CREATE_MUTATION = `
   mutation orderCreate($order: OrderCreateOrderInput!, $options: OrderCreateOptionsInput) {
@@ -144,7 +147,12 @@ module.exports = async (req, res) => {
     return;
   }
 
-  const { nombre, telefono, direccion, ciudad, eventId, eventSourceUrl } = req.body || {};
+  const { nombre, telefono, direccion, ciudad, eventId, eventSourceUrl, wheelToken, wantsSecondKit } = req.body || {};
+
+  // El premio nunca se confía a lo que mande el cliente: se verifica la
+  // firma del token acá. Si no es válido o expiró, prizeId queda null y no
+  // se aplica ningún efecto — como si no hubiera ganado nada.
+  const prizeId = verifyToken(wheelToken);
 
   if (!nombre || !telefono || !direccion || !ciudad) {
     res.status(400).json({ success: false, error: 'Faltan datos del formulario' });
@@ -164,13 +172,30 @@ module.exports = async (req, res) => {
   const firstName = nameParts.shift() || nombre;
   const lastName = nameParts.join(' ') || firstName;
 
-  const order = {
-    lineItems: [
-      {
-        variantId: `gid://shopify/ProductVariant/${variantId}`,
-        quantity: 1
+  const lineItems = [
+    {
+      variantId: `gid://shopify/ProductVariant/${variantId}`,
+      quantity: 1
+    }
+  ];
+
+  // "30% en tu segundo kit": se agrega como line item aparte (cantidad 1,
+  // precio ya rebajado) en vez de quantity:2, para no depender de si
+  // priceSet en Shopify representa precio unitario o precio de línea —
+  // con quantity:1 en ambos line items la ambigüedad no importa.
+  const wonSecondKitDiscount = prizeId === 'segundo-kit-30' && wantsSecondKit === true;
+  if (wonSecondKitDiscount) {
+    lineItems.push({
+      variantId: `gid://shopify/ProductVariant/${variantId}`,
+      quantity: 1,
+      priceSet: {
+        shopMoney: { amount: SECOND_KIT_PRICE_COP, currencyCode: 'COP' }
       }
-    ],
+    });
+  }
+
+  const order = {
+    lineItems,
     shippingAddress: {
       firstName,
       lastName,
@@ -182,6 +207,14 @@ module.exports = async (req, res) => {
     phone: telefono,
     financialStatus: 'PENDING'
   };
+
+  if (prizeId) {
+    order.tags = [`ruleta:${prizeId}`];
+  }
+
+  if (prizeId === 'garantia-extra') {
+    order.note = 'Premio de la ruleta: +5 días extra de garantía (20 días en total desde la entrega).';
+  }
 
   // inventoryBehaviour vive en OrderCreateOptionsInput (argumento "options",
   // hermano de "order" en la mutación) — NO es un campo de
@@ -231,10 +264,12 @@ module.exports = async (req, res) => {
       ? forwardedFor[0]
       : (forwardedFor || '').split(',')[0].trim() || req.socket.remoteAddress;
 
+    const orderValue = wonSecondKitDiscount ? 119900 + Number(SECOND_KIT_PRICE_COP) : 119900;
+
     await sendMetaPurchaseEvent({
       eventId,
       eventSourceUrl,
-      value: 119900,
+      value: orderValue,
       currency: 'COP',
       contentId: variantId,
       nombre,

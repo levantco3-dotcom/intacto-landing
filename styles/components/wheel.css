@@ -1,0 +1,226 @@
+/* ==========================================================================
+   INTACTO — wheel.css
+   Ruleta de exit-intent (checkout) + banner del premio "segundo kit"
+   ========================================================================== */
+
+.wheel-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background-color: rgba(26, 23, 20, 0.55);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.wheel-overlay.is-visible {
+  opacity: 1;
+}
+
+.wheel-modal {
+  position: relative;
+  width: 100%;
+  max-width: 340px;
+  background-color: var(--blanco-calido);
+  border-radius: 14px;
+  padding: 28px 20px 24px;
+  text-align: center;
+  box-shadow: 0 24px 48px rgba(26, 23, 20, 0.35);
+  transform: scale(0.94);
+  transition: transform 0.25s ease;
+}
+
+.wheel-overlay.is-visible .wheel-modal {
+  transform: scale(1);
+}
+
+.wheel-modal__close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  color: var(--carbon-suave);
+  border-radius: 50%;
+}
+
+.wheel-modal__close svg {
+  width: 18px;
+  height: 18px;
+}
+
+.wheel-modal__close:hover,
+.wheel-modal__close:focus-visible {
+  background-color: var(--crema);
+}
+
+.wheel-modal__title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: var(--carbon);
+  margin-bottom: 4px;
+}
+
+.wheel-modal__subtitle {
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  color: var(--carbon-suave);
+  margin-bottom: 20px;
+}
+
+.wheel {
+  position: relative;
+  width: 220px;
+  height: 220px;
+  margin: 0 auto 20px;
+}
+
+.wheel__pointer {
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-top: 16px solid var(--carbon);
+  z-index: 2;
+}
+
+.wheel__svg {
+  width: 100%;
+  height: 100%;
+  transition: transform 4.5s cubic-bezier(0.15, 0.85, 0.25, 1);
+}
+
+.wheel__segment-label {
+  font-family: var(--font-body);
+  font-weight: 700;
+  fill: var(--blanco-calido);
+}
+
+.wheel__hub {
+  fill: var(--blanco-calido);
+  stroke: var(--carbon);
+  stroke-width: 2;
+}
+
+.wheel-modal__spin-button {
+  width: 100%;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--blanco-calido);
+  background-color: var(--cobre);
+  padding: 14px 20px;
+  border-radius: 6px;
+  transition: background-color 0.2s ease, opacity 0.2s ease;
+}
+
+.wheel-modal__spin-button:hover,
+.wheel-modal__spin-button:focus-visible {
+  background-color: var(--cobre-oscuro);
+}
+
+.wheel-modal__spin-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.wheel-modal__result {
+  display: none;
+}
+
+.wheel-modal.is-result .wheel-modal__spin-prompt {
+  display: none;
+}
+
+.wheel-modal.is-result .wheel-modal__result {
+  display: block;
+}
+
+.wheel-modal__result-label {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.375rem;
+  color: var(--cobre-oscuro);
+  margin-bottom: 8px;
+}
+
+.wheel-modal__result-text {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: var(--carbon-suave);
+  margin-bottom: 18px;
+}
+
+.wheel-modal__result-button {
+  width: 100%;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--blanco-calido);
+  background-color: var(--cobre);
+  padding: 14px 20px;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+}
+
+.wheel-modal__result-button:hover,
+.wheel-modal__result-button:focus-visible {
+  background-color: var(--cobre-oscuro);
+}
+
+/* Banner del premio "segundo kit" en el checkout */
+
+.wheel-second-kit-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background-color: var(--crema);
+  border: 1px solid var(--cobre);
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 24px;
+}
+
+.wheel-second-kit-banner__checkbox {
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+  accent-color: var(--cobre);
+}
+
+.wheel-second-kit-banner__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.wheel-second-kit-banner__title {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--carbon);
+  margin-bottom: 4px;
+}
+
+.wheel-second-kit-banner__price {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  color: var(--carbon-suave);
+}
+
+.wheel-second-kit-banner__price strong {
+  color: var(--cobre-oscuro);
+  font-weight: 700;
+}
