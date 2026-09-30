@@ -4,13 +4,14 @@ const crypto = require('crypto');
 // El frontend tiene su propia copia SOLO de los pesos/orden para dibujar la
 // ruleta con el tamaño de segmento correcto, pero nunca decide el resultado.
 const WHEEL_PRIZES = [
-  { id: 'casi-ganas', label: 'Casi ganas', weight: 40 },
+  { id: 'casi-ganas', label: '¡Pa\' la próxima!', weight: 40 },
   { id: 'garantia-extra', label: '5 días extra de garantía', weight: 10 },
   { id: 'prepago-5', label: '5% off pagando anticipado', weight: 30 },
   { id: 'segundo-kit-30', label: '30% en tu segundo kit', weight: 20 }
 ];
 
 const TOKEN_TTL_MS = 60 * 60 * 1000; // 1 hora — más que suficiente para terminar un checkout
+const MAX_SPINS_PER_SESSION = 2;
 
 function getSecret() {
   const secret = process.env.WHEEL_SIGNING_SECRET;
@@ -89,4 +90,4 @@ function verifyToken(token) {
   return payload.prizeId;
 }
 
-module.exports = { WHEEL_PRIZES, pickWeightedPrize, signPrize, verifyToken };
+module.exports = { WHEEL_PRIZES, MAX_SPINS_PER_SESSION, pickWeightedPrize, signPrize, verifyToken };

@@ -52,6 +52,7 @@ async function sendMetaPurchaseEvent({
   telefono,
   direccion,
   ciudad,
+  email,
   clientIp,
   clientUserAgent
 }) {
@@ -71,6 +72,7 @@ async function sendMetaPurchaseEvent({
   const lastName = nameParts.join(' ');
 
   const userData = {
+    em: hashField(email),
     ph: hashField(telefono, normalizePhoneForHash),
     fn: hashField(firstName),
     ln: hashField(lastName),
@@ -147,14 +149,17 @@ module.exports = async (req, res) => {
     return;
   }
 
-  const { nombre, telefono, direccion, ciudad, eventId, eventSourceUrl, wheelToken, wantsSecondKit } = req.body || {};
+  const { nombre, telefono, direccion, ciudad, email, eventId, eventSourceUrl, wheelTokens, wantsSecondKit } = req.body || {};
 
-  // El premio nunca se confía a lo que mande el cliente: se verifica la
-  // firma del token acá. Si no es válido o expiró, prizeId queda null y no
-  // se aplica ningún efecto — como si no hubiera ganado nada.
-  const prizeId = verifyToken(wheelToken);
+  // El premio nunca se confía a lo que mande el cliente: cada token se
+  // vuelve a verificar acá. Los inválidos/vencidos/manipulados se descartan
+  // en silencio (como si no hubiera ganado ese giro). Puede haber hasta 2
+  // premios válidos (máximo 2 giros por sesión).
+  const prizeIds = Array.isArray(wheelTokens)
+    ? Array.from(new Set(wheelTokens.map((t) => verifyToken(t)).filter(Boolean)))
+    : [];
 
-  if (!nombre || !telefono || !direccion || !ciudad) {
+  if (!nombre || !telefono || !direccion || !ciudad || !email) {
     res.status(400).json({ success: false, error: 'Faltan datos del formulario' });
     return;
   }
@@ -183,7 +188,7 @@ module.exports = async (req, res) => {
   // precio ya rebajado) en vez de quantity:2, para no depender de si
   // priceSet en Shopify representa precio unitario o precio de línea —
   // con quantity:1 en ambos line items la ambigüedad no importa.
-  const wonSecondKitDiscount = prizeId === 'segundo-kit-30' && wantsSecondKit === true;
+  const wonSecondKitDiscount = prizeIds.includes('segundo-kit-30') && wantsSecondKit === true;
   if (wonSecondKitDiscount) {
     lineItems.push({
       variantId: `gid://shopify/ProductVariant/${variantId}`,
@@ -196,6 +201,7 @@ module.exports = async (req, res) => {
 
   const order = {
     lineItems,
+    email,
     shippingAddress: {
       firstName,
       lastName,
@@ -208,11 +214,11 @@ module.exports = async (req, res) => {
     financialStatus: 'PENDING'
   };
 
-  if (prizeId) {
-    order.tags = [`ruleta:${prizeId}`];
+  if (prizeIds.length > 0) {
+    order.tags = prizeIds.map((id) => `ruleta:${id}`);
   }
 
-  if (prizeId === 'garantia-extra') {
+  if (prizeIds.includes('garantia-extra')) {
     order.note = 'Premio de la ruleta: +5 días extra de garantía (20 días en total desde la entrega).';
   }
 
@@ -276,6 +282,7 @@ module.exports = async (req, res) => {
       telefono,
       direccion,
       ciudad,
+      email,
       clientIp,
       clientUserAgent: req.headers['user-agent']
     });

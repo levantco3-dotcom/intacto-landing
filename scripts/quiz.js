@@ -2,11 +2,12 @@
   const SESSION_KEY = 'intacto_quiz_shown';
   const TIME_MS = 15000;
   const SCROLL_RATIO = 0.45;
+  const YES_THRESHOLD = 2;
 
   const QUESTIONS = [
-    '¿Lavas tus tenis en la lavadora?',
-    '¿Se ensucian con la palanca de cambios de tu moto o el pedal del carro?',
-    '¿Sales con los tenis sucios porque no te da tiempo de limpiarlos?'
+    '¿Alguna vez has lavado tus tenis a mano o en la lavadora?',
+    '¿Te molesta que tus tenis blancos se pongan amarillos o manchados con el tiempo?',
+    '¿Te gustaría dejarlos como nuevos en solo 2 minutos, sin agua ni jabón?'
   ];
 
   function hasBeenShown() {
@@ -36,6 +37,7 @@
     if (!root) return;
 
     let step = 0;
+    let yesCount = 0;
 
     const sheet = document.createElement('div');
     sheet.className = 'quiz-sheet';
@@ -89,11 +91,9 @@
 
     const resultTitle = document.createElement('p');
     resultTitle.className = 'quiz-sheet__result-title';
-    resultTitle.textContent = 'INTACTO es para ti';
 
     const resultText = document.createElement('p');
     resultText.className = 'quiz-sheet__result-text';
-    resultText.textContent = 'Tenis siempre listos, sin lavadora ni pereza. Espuma, cepillo, 2 minutos.';
 
     const resultButton = document.createElement('a');
     resultButton.className = 'quiz-sheet__result-button';
@@ -110,18 +110,33 @@
       dots.forEach((dot, i) => dot.classList.toggle('is-active', i === step));
     }
 
-    function advance() {
+    function showSoftResult() {
+      questionStep.hidden = true;
+      resultTitle.textContent = 'Igual muchos clientes lo aman';
+      resultText.textContent = 'Aunque no lavas tenis seguido, INTACTO deja los tuyos como el día uno en 2 minutos, cuando los necesites.';
+      resultStep.hidden = false;
+    }
+
+    function answer(isYes) {
+      if (isYes) yesCount += 1;
+
+      if (yesCount >= YES_THRESHOLD) {
+        // Redirección automática, sin botón ni clic de por medio.
+        window.location.href = '/checkout';
+        return;
+      }
+
       step += 1;
+
       if (step >= QUESTIONS.length) {
-        questionStep.hidden = true;
-        resultStep.hidden = false;
+        showSoftResult();
       } else {
         renderQuestion();
       }
     }
 
-    yesBtn.addEventListener('click', advance);
-    noBtn.addEventListener('click', advance);
+    yesBtn.addEventListener('click', () => answer(true));
+    noBtn.addEventListener('click', () => answer(false));
 
     function close() {
       sheet.classList.remove('is-visible');

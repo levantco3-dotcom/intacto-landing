@@ -38,6 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const telefono = form.telefono.value.trim();
     const direccion = form.direccion.value.trim();
     const ciudad = form.ciudad.value.trim();
+    const email = form.email.value.trim();
 
     // event_id único por pedido: se manda al backend para que dispare la
     // Purchase de servidor (Conversions API) con el MISMO id que usará el
@@ -47,9 +48,9 @@ document.addEventListener('DOMContentLoaded', () => {
     submitButton.disabled = true;
     submitButton.textContent = 'Enviando...';
 
-    // Si la ruleta de exit-intent ya se giró en esta sesión, se manda el
-    // token firmado (nunca el prizeId "en crudo") para que el servidor lo
-    // vuelva a verificar antes de aplicar cualquier premio.
+    // Si la ruleta de exit-intent ya se giró en esta sesión (hasta 2 veces),
+    // se mandan los tokens firmados (nunca el prizeId "en crudo") para que
+    // el servidor los vuelva a verificar antes de aplicar cualquier premio.
     const wheelState = window.INTACTO_WHEEL_STATE || {};
 
     try {
@@ -61,9 +62,10 @@ document.addEventListener('DOMContentLoaded', () => {
           telefono,
           direccion,
           ciudad,
+          email,
           eventId,
           eventSourceUrl: window.location.href,
-          wheelToken: wheelState.token,
+          wheelTokens: wheelState.tokens || [],
           wantsSecondKit: wheelState.wantsSecondKit
         })
       });

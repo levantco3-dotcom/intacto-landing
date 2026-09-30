@@ -1,6 +1,7 @@
 (function () {
-  const SESSION_SHOWN_KEY = 'intacto_wheel_shown';
-  const PRIZE_STORAGE_KEY = 'intacto_wheel_prize';
+  const SPINS_USED_KEY = 'intacto_wheel_spins_used';
+  const PRIZES_WON_KEY = 'intacto_wheel_prizes';
+  const MAX_SPINS = 2;
   const IDLE_MS = 22000;
   const SVG_NS = 'http://www.w3.org/2000/svg';
 
@@ -8,7 +9,7 @@
   // real siempre ocurre en /api/wheel-spin — esto nunca decide nada, solo
   // sabe dónde pintar cada premio en el círculo.
   const PRIZES_DISPLAY = [
-    { id: 'casi-ganas', lines: ['CASI', 'GANAS'], weight: 40, color: 'var(--carbon-suave)' },
+    { id: 'casi-ganas', lines: ["¡PA' LA", 'PRÓXIMA!'], weight: 40, color: 'var(--carbon-suave)' },
     { id: 'garantia-extra', lines: ['+5 DÍAS', 'GARANTÍA'], weight: 10, color: 'var(--cobre-oscuro)' },
     { id: 'prepago-5', lines: ['5% OFF', 'PAGO YA'], weight: 30, color: 'var(--cobre)' },
     { id: 'segundo-kit-30', lines: ['30% OFF', '2DO KIT'], weight: 20, color: 'var(--crema-oscuro)' }
@@ -16,7 +17,7 @@
 
   const PRIZE_RESULT_COPY = {
     'casi-ganas': {
-      title: 'Casi ganas',
+      title: '¡Pa\' la próxima!',
       text: 'Esta vez no hubo premio, pero tu kit INTACTO te espera igual.'
     },
     'garantia-extra': {
@@ -33,40 +34,45 @@
     }
   };
 
-  function hasBeenShown() {
+  function getSpinsUsed() {
     try {
-      return sessionStorage.getItem(SESSION_SHOWN_KEY) === '1';
+      const raw = sessionStorage.getItem(SPINS_USED_KEY);
+      const parsed = parseInt(raw, 10);
+      return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
     } catch (err) {
-      return false;
+      return 0;
     }
   }
 
-  function markShown() {
+  function setSpinsUsed(count) {
     try {
-      sessionStorage.setItem(SESSION_SHOWN_KEY, '1');
-    } catch (err) {
-      // no crítico si no se puede persistir
-    }
-  }
-
-  function saveState(prizeId, token) {
-    try {
-      sessionStorage.setItem(PRIZE_STORAGE_KEY, JSON.stringify({ prizeId, token }));
+      sessionStorage.setItem(SPINS_USED_KEY, String(count));
     } catch (err) {
       // no crítico
     }
   }
 
-  function loadState() {
+  function savePrizeWon(prizeId, token) {
     try {
-      const raw = sessionStorage.getItem(PRIZE_STORAGE_KEY);
-      return raw ? JSON.parse(raw) : null;
+      const raw = sessionStorage.getItem(PRIZES_WON_KEY);
+      const list = raw ? JSON.parse(raw) : [];
+      list.push({ prizeId, token });
+      sessionStorage.setItem(PRIZES_WON_KEY, JSON.stringify(list));
     } catch (err) {
-      return null;
+      // no crítico
     }
   }
 
-  window.INTACTO_WHEEL_STATE = window.INTACTO_WHEEL_STATE || {};
+  function loadPrizesWon() {
+    try {
+      const raw = sessionStorage.getItem(PRIZES_WON_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch (err) {
+      return [];
+    }
+  }
+
+  window.INTACTO_WHEEL_STATE = window.INTACTO_WHEEL_STATE || { tokens: [] };
 
   function updateSummaryPrice(withSecondKit) {
     const priceEl = document.querySelector('.checkout-page__summary-price-current');
@@ -121,11 +127,13 @@
     refresh();
   }
 
-  function applyPrizeEffects(prizeId, token) {
-    window.INTACTO_WHEEL_STATE.token = token;
-    window.INTACTO_WHEEL_STATE.prizeId = prizeId;
+  // Aplica los efectos de TODOS los premios ganados hasta ahora (puede haber
+  // hasta 2, uno por giro). Se puede llamar varias veces sin duplicar nada.
+  function applyWonPrizes() {
+    const won = loadPrizesWon();
+    window.INTACTO_WHEEL_STATE.tokens = won.map((p) => p.token);
 
-    if (prizeId === 'segundo-kit-30') {
+    if (won.some((p) => p.prizeId === 'segundo-kit-30')) {
       renderSecondKitBanner();
     }
   }
@@ -221,7 +229,7 @@
 
   // -- Modal -----------------------------------------------------------------
 
-  function buildModal() {
+  function buildModal(onClose) {
     const root = document.getElementById('wheel-modal-root');
     if (!root) return;
 
@@ -272,19 +280,28 @@
     const resultText = document.createElement('p');
     resultText.className = 'wheel-modal__result-text';
 
+    const spinAgainButton = document.createElement('button');
+    spinAgainButton.type = 'button';
+    spinAgainButton.className = 'wheel-modal__spin-button';
+    spinAgainButton.textContent = 'Girar de nuevo';
+    spinAgainButton.hidden = true;
+
     const resultButton = document.createElement('button');
     resultButton.type = 'button';
     resultButton.className = 'wheel-modal__result-button';
     resultButton.textContent = 'Continuar con mi pedido';
 
-    resultBox.append(resultTitle, resultText, resultButton);
+    resultBox.append(resultTitle, resultText, spinAgainButton, resultButton);
     modal.append(closeBtn, title, subtitle, wheelWrap, spinPrompt, resultBox);
     overlay.appendChild(modal);
     root.appendChild(overlay);
 
     function close() {
       overlay.classList.remove('is-visible');
-      window.setTimeout(() => overlay.remove(), 250);
+      window.setTimeout(() => {
+        overlay.remove();
+        if (onClose) onClose();
+      }, 250);
     }
 
     closeBtn.addEventListener('click', close);
@@ -293,8 +310,9 @@
     });
     resultButton.addEventListener('click', close);
 
-    spinButton.addEventListener('click', () => {
+    function doSpin() {
       spinButton.disabled = true;
+      spinAgainButton.disabled = true;
       spinButton.textContent = 'Girando...';
 
       fetch('/api/wheel-spin', { method: 'POST' })
@@ -312,14 +330,27 @@
             resultText.textContent = copy.text;
             modal.classList.add('is-result');
 
-            saveState(data.prizeId, data.token);
-            applyPrizeEffects(data.prizeId, data.token);
+            setSpinsUsed(data.spinsUsed);
+            savePrizeWon(data.prizeId, data.token);
+            applyWonPrizes();
+
+            spinAgainButton.hidden = data.spinsRemaining <= 0;
+            spinAgainButton.disabled = false;
+            spinButton.disabled = false;
+            spinButton.textContent = 'Girar la ruleta';
           }, 4700);
         })
         .catch(() => {
           spinButton.disabled = false;
+          spinAgainButton.disabled = false;
           spinButton.textContent = 'Girar la ruleta';
         });
+    }
+
+    spinButton.addEventListener('click', doSpin);
+    spinAgainButton.addEventListener('click', () => {
+      modal.classList.remove('is-result');
+      doSpin();
     });
 
     requestAnimationFrame(() => overlay.classList.add('is-visible'));
@@ -328,22 +359,31 @@
   // -- Disparadores: popstate (retroceso) o inactividad ----------------------
 
   function initTriggers() {
-    if (hasBeenShown()) {
-      const state = loadState();
-      if (state && state.prizeId) applyPrizeEffects(state.prizeId, state.token);
-      return;
-    }
+    applyWonPrizes();
+    armSignals();
+  }
+
+  function armSignals() {
+    if (getSpinsUsed() >= MAX_SPINS) return;
 
     let triggered = false;
     let idleTimer = window.setTimeout(trigger, IDLE_MS);
 
-    function trigger() {
-      if (triggered || hasBeenShown()) return;
-      triggered = true;
-      markShown();
+    function cleanup() {
       window.clearTimeout(idleTimer);
       window.removeEventListener('popstate', trigger);
-      buildModal();
+    }
+
+    function trigger() {
+      if (triggered || getSpinsUsed() >= MAX_SPINS) return;
+      triggered = true;
+      cleanup();
+      buildModal(() => {
+        // Al cerrar, si todavía quedan giros (el usuario cerró sin agotar
+        // los 2), se vuelve a armar el disparador para un próximo intento
+        // de salida.
+        if (getSpinsUsed() < MAX_SPINS) armSignals();
+      });
     }
 
     function resetIdleTimer() {
