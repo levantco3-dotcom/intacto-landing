@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gracias por tu compra — INTACTO</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;900&family=Barlow:wght@400;500;700&family=Cormorant+Garamond:ital@1&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="../styles/base.css">
+  <link rel="stylesheet" href="../styles/globals/whatsapp-float.css">
+  <link rel="stylesheet" href="../styles/pages/checkout.css">
+  <link rel="stylesheet" href="../styles/globals/legal-links.css">
+</head>
+<body>
+
+  <header class="checkout-page-topbar">
+    <a class="checkout-page-topbar__back" href="/">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M15 6l-6 6 6 6"></path>
+      </svg>
+      Inicio
+    </a>
+    <img class="checkout-page-topbar__logo" src="../assets/images/logo-intacto.jpg.jpeg" alt="INTACTO">
+  </header>
+
+  <main class="checkout-page">
+    <div class="checkout-page__result" id="gracias-result" data-state="pending">
+      <p class="checkout-page__result-title">Estamos verificando tu pago</p>
+      <p class="checkout-page__result-text">Esto puede tardar unos segundos. Te vamos a escribir por WhatsApp apenas quede confirmado.</p>
+    </div>
+  </main>
+
+  <footer class="legal-links">
+    <a href="/terminos-y-condiciones">Términos y condiciones</a>
+    <span class="legal-links__separator" aria-hidden="true">·</span>
+    <a href="/politica-de-privacidad">Política de privacidad</a>
+    <span class="legal-links__separator" aria-hidden="true">·</span>
+    <a href="/politica-de-envios">Política de envíos</a>
+    <span class="legal-links__separator" aria-hidden="true">·</span>
+    <a href="/politica-de-devoluciones">Política de devoluciones</a>
+  </footer>
+
+  <a
+    class="whatsapp-float"
+    href="https://wa.me/573203886918"
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label="Escríbenos por WhatsApp"
+  >
+    <svg viewBox="0 0 24 24" fill="#FFFFFF" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.9-4.45 9.9-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2zm5.8 14.13c-.24.68-1.4 1.31-1.93 1.35-.5.05-.99.24-3.34-.7-2.82-1.13-4.63-4-4.77-4.19-.14-.19-1.14-1.51-1.14-2.88 0-1.37.72-2.04.97-2.32.25-.28.55-.35.73-.35.19 0 .37 0 .53.01.17.01.4-.06.62.48.24.58.8 1.99.87 2.13.07.14.11.31.02.5-.09.19-.14.31-.27.47-.14.16-.29.36-.41.48-.14.14-.28.29-.12.57.16.28.71 1.18 1.53 1.91 1.05.94 1.94 1.24 2.22 1.38.28.14.44.12.6-.07.16-.19.68-.79.87-1.06.19-.28.37-.23.62-.14.26.09 1.63.77 1.91.91.28.14.47.21.53.33.07.12.07.68-.17 1.36z"/>
+    </svg>
+  </a>
+
+  <script>
+    // El query param de Bold es solo informativo para el cliente en
+    // pantalla — la fuente de verdad del pago es el webhook server-side
+    // (api/bold-webhook.js), no este parámetro. Nunca se afirma éxito
+    // definitivo acá.
+    (function () {
+      const params = new URLSearchParams(window.location.search);
+      const orderId = params.get('bold-order-id');
+      const txStatus = (params.get('bold-tx-status') || '').toLowerCase();
+
+      const box = document.getElementById('gracias-result');
+      const title = box.querySelector('.checkout-page__result-title');
+      const text = box.querySelector('.checkout-page__result-text');
+
+      if (!orderId) {
+        box.setAttribute('data-state', 'error');
+        title.textContent = 'No encontramos tu pedido';
+        text.textContent = 'Escríbenos por WhatsApp y lo confirmamos ahí mismo.';
+        return;
+      }
+
+      if (txStatus === 'approved') {
+        box.setAttribute('data-state', 'success');
+        title.textContent = 'Tu pago está siendo confirmado';
+        text.textContent = 'Bold ya reportó tu pago como aprobado. Vamos a confirmarlo del lado de INTACTO y te escribimos por WhatsApp para coordinar la entrega.';
+      } else {
+        box.setAttribute('data-state', 'pending');
+        title.textContent = 'Tu pago está siendo verificado';
+        text.textContent = 'Todavía no tenemos una confirmación final. Si el pago se aprobó, te vamos a escribir por WhatsApp; si no, tu tarjeta no fue cobrada.';
+      }
+    })();
+  </script>
+</body>
+</html>

@@ -34,6 +34,12 @@ document.addEventListener('DOMContentLoaded', () => {
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
 
+    // Si el cliente eligió pagar con Bold, este submit (contra entrega)
+    // nunca debe ejecutarse — el flujo de Bold lo maneja checkout-bold.js
+    // por su cuenta con un botón type="button" aparte.
+    const selectedMethod = form.querySelector('input[name="payment-method"]:checked');
+    if (selectedMethod && selectedMethod.value === 'bold') return;
+
     const nombre = form.nombre.value.trim();
     const telefono = form.telefono.value.trim();
     const direccion = form.direccion.value.trim();

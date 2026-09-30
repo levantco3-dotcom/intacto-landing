@@ -108,23 +108,40 @@
       <section>
         <h2 class="checkout-page__section-title">Método de pago</h2>
 
-        <div class="checkout-page__payment-badges">
-          <span class="checkout-page__payment-chip">
-            <img class="checkout-page__payment-logo" src="../assets/images/logo%20visa%20mastercard.jpg" alt="Visa / Mastercard" loading="lazy">
-          </span>
-          <span class="checkout-page__payment-chip">
-            <img class="checkout-page__payment-logo" src="../assets/images/logo-nequi.jpg" alt="Nequi" loading="lazy">
-          </span>
-          <span class="checkout-page__payment-chip">
-            <img class="checkout-page__payment-logo" src="../assets/images/Bre-B-logo.jpg" alt="Bre-B" loading="lazy">
-          </span>
-          <span class="checkout-page__payment-chip checkout-page__payment-chip--text">Contra entrega</span>
+        <div class="checkout-page__payment-methods">
+          <label class="checkout-page__payment-option">
+            <input type="radio" name="payment-method" value="cod" checked>
+            <span class="checkout-page__payment-chip checkout-page__payment-chip--text">Contra entrega</span>
+          </label>
+
+          <label class="checkout-page__payment-option">
+            <input type="radio" name="payment-method" value="bold">
+            <span class="checkout-page__payment-badges">
+              <span class="checkout-page__payment-chip">
+                <img class="checkout-page__payment-logo" src="../assets/images/logo%20visa%20mastercard.jpg" alt="Visa / Mastercard" loading="lazy">
+              </span>
+              <span class="checkout-page__payment-chip">
+                <img class="checkout-page__payment-logo" src="../assets/images/logo-nequi.jpg" alt="Nequi" loading="lazy">
+              </span>
+              <span class="checkout-page__payment-chip">
+                <img class="checkout-page__payment-logo" src="../assets/images/Bre-B-logo.jpg" alt="Bre-B" loading="lazy">
+              </span>
+              <span class="checkout-page__payment-chip checkout-page__payment-chip--text">Pagar ahora</span>
+            </span>
+          </label>
         </div>
 
-        <p class="checkout-page__payment-note">Pagas en efectivo o con datáfono cuando recibas tu pedido — sin adelantos.</p>
+        <p class="checkout-page__payment-note" id="payment-method-note">Pagas en efectivo o con datáfono cuando recibas tu pedido — sin adelantos.</p>
       </section>
 
-      <button class="checkout-page__submit" type="submit">Confirmar pedido</button>
+      <button class="checkout-page__submit" type="submit" id="cod-submit-button">Confirmar pedido</button>
+
+      <div class="checkout-page__bold-area" id="bold-payment-area" hidden>
+        <button class="checkout-page__submit" type="button" id="bold-prepare-button">Continuar al pago</button>
+        <p class="checkout-page__bold-error" id="bold-prepare-error" hidden></p>
+        <div id="bold-button-container"></div>
+      </div>
+
       <p class="checkout-page__note">🔒 Datos protegidos · Envío a toda Colombia · Garantía de 15 días</p>
     </form>
 
@@ -157,5 +174,6 @@
 
   <script src="../scripts/checkout-page.js"></script>
   <script src="../scripts/checkout-wheel.js"></script>
+  <script src="../scripts/checkout-bold.js"></script>
 </body>
 </html>

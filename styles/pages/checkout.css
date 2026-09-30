@@ -248,6 +248,50 @@ details[open] .checkout-page__summary-meta svg {
 
 /* Método de pago */
 
+.checkout-page__payment-methods {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.checkout-page__payment-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  background-color: var(--blanco-calido);
+  border: 1px solid var(--crema-oscuro);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.checkout-page__payment-option:has(input:checked) {
+  border-color: var(--cobre);
+}
+
+.checkout-page__payment-option input[type="radio"] {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  accent-color: var(--cobre);
+}
+
+.checkout-page__bold-area {
+  margin-top: 12px;
+}
+
+.checkout-page__bold-error {
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  color: #b3261e;
+  margin-top: 10px;
+}
+
+#bold-button-container {
+  margin-top: 12px;
+}
+
 .checkout-page__payment-badges {
   display: flex;
   flex-wrap: wrap;
@@ -342,6 +386,12 @@ details[open] .checkout-page__summary-meta svg {
   display: block;
   background-color: var(--blanco-calido);
   border: 1px solid var(--carbon-suave);
+}
+
+.checkout-page__result[data-state="pending"] {
+  display: block;
+  background-color: var(--blanco-calido);
+  border: 1px solid var(--crema-oscuro);
 }
 
 .checkout-page__result-title {
