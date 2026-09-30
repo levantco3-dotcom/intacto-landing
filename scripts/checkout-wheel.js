@@ -2,7 +2,6 @@
   const SPINS_USED_KEY = 'intacto_wheel_spins_used';
   const PRIZES_WON_KEY = 'intacto_wheel_prizes';
   const MAX_SPINS = 2;
-  const IDLE_MS = 20000;
   const SVG_NS = 'http://www.w3.org/2000/svg';
 
   // Copia LOCAL, solo para dibujar los segmentos a escala real. El sorteo
@@ -353,18 +352,19 @@
     requestAnimationFrame(() => overlay.classList.add('is-visible'));
   }
 
-  // -- Disparadores: popstate (retroceso) o inactividad ----------------------
+  // -- Disparador: EXCLUSIVAMENTE el botón atrás (popstate) ------------------
   //
-  // Diseño deliberadamente de UN SOLO INTENTO: apenas se dispara CUALQUIERA
-  // de las dos señales (20s de inactividad o el primer back-press), se
-  // muestra el modal UNA vez y se desarman ambas señales para siempre en
-  // esta carga de página — no se vuelven a rearmar al cerrar el modal. El
-  // segundo giro (si queda) se resuelve con el botón "Girar de nuevo"
-  // DENTRO del mismo modal, nunca disparando un nuevo intento de salida.
-  // La versión anterior re-armaba pushState/popstate de forma recursiva
-  // cada vez que el modal se cerraba, lo que apilaba entradas de historial
-  // y, en combinación con el back-forward cache del navegador, producía el
-  // comportamiento inconsistente reportado ("a veces sí, a veces no").
+  // Por decisión explícita: la ruleta es una estrategia de exit-intent, así
+  // que se reserva solo para el momento en que el cliente intenta irse — no
+  // compite con un timer de inactividad que podría dispararse mientras el
+  // cliente todavía está llenando el formulario (eso le restaba el único
+  // intento disponible antes de que el cliente llegara a presionar atrás).
+  //
+  // Diseño de UN SOLO INTENTO: el primer back-press dispara el modal y
+  // desarma el listener para siempre en esta carga de página — si el
+  // cliente cierra la ruleta y presiona atrás de nuevo, sale normal. El
+  // segundo giro (si queda) se resuelve con el botón "Girar de nuevo" DENTRO
+  // del modal ya abierto, nunca disparando un nuevo intento de salida.
 
   function initTriggers() {
     applyWonPrizes();
@@ -372,32 +372,16 @@
     if (getSpinsUsed() >= MAX_SPINS) return;
 
     let triggered = false;
-    let idleTimer = window.setTimeout(trigger, IDLE_MS);
 
     function trigger() {
       if (triggered) return;
       triggered = true;
-      window.clearTimeout(idleTimer);
       window.removeEventListener('popstate', onPopState);
       buildModal();
     }
 
-    function resetIdleTimer() {
-      if (triggered) return;
-      window.clearTimeout(idleTimer);
-      idleTimer = window.setTimeout(trigger, IDLE_MS);
-    }
-
     function onPopState() {
       trigger();
-    }
-
-    const form = document.getElementById('checkout-form');
-    if (form) {
-      form.querySelectorAll('input').forEach((input) => {
-        input.addEventListener('focus', resetIdleTimer);
-        input.addEventListener('input', resetIdleTimer);
-      });
     }
 
     // Truco estándar para "exit intent" con botón de retroceso: se agrega
@@ -409,12 +393,10 @@
 
     // bfcache (muy relevante en iOS Safari, también ocurre en Chrome
     // móvil): si el navegador restaura esta página desde caché en vez de
-    // recargarla, "DOMContentLoaded" no vuelve a dispararse y el timer de
-    // inactividad puede quedar en un estado inconsistente (pausado durante
-    // el tiempo que la página estuvo en bfcache). Al restaurar, si todavía
-    // no se disparó nada, se reinicia el conteo de inactividad desde cero.
+    // recargarla, popstate puede no dispararse de forma confiable. Si eso
+    // ocurre y la ruleta todavía no se mostró, se dispara directamente acá.
     window.addEventListener('pageshow', (event) => {
-      if (event.persisted) resetIdleTimer();
+      if (event.persisted) trigger();
     });
   }
 
