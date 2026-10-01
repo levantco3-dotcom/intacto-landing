@@ -312,6 +312,7 @@
 
       fetch('/api/wheel-spin', { method: 'POST' })
         .then((response) => {
+          if (response.status === 409) throw new Error('Ya usaste tu giro disponible en esta sesión. Cerrá y reabrí el navegador (o probá en una ventana de incógnito) para volver a intentarlo.');
           if (!response.ok) throw new Error(`No se pudo girar (HTTP ${response.status})`);
           return response.json();
         })
