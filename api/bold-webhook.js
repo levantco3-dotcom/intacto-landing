@@ -1,30 +1,17 @@
 const crypto = require('crypto');
 const { verifyWebhookSignature, readRawBody } = require('./_lib/bold');
+const { kvGetJSON, kvSetJSON } = require('./_lib/kv');
 
 const META_GRAPH_VERSION = 'v21.0';
+const SECOND_KIT_PRICE_COP = '83930';
+const PROCESSED_TTL_SECONDS = 2 * 24 * 60 * 60; // 2 días: cubre el último reintento de Bold (24h) con margen
 
-const ORDER_STATUS_QUERY = `
-  query orderStatus($id: ID!) {
-    order(id: $id) {
-      id
-      displayFinancialStatus
-      email
-      shippingAddress {
-        firstName
-        lastName
-        city
-        phone
-      }
-    }
-  }
-`;
-
-const ORDER_MARK_AS_PAID_MUTATION = `
-  mutation orderMarkAsPaid($input: OrderMarkAsPaidInput!) {
-    orderMarkAsPaid(input: $input) {
+const ORDER_CREATE_MUTATION = `
+  mutation orderCreate($order: OrderCreateOrderInput!, $options: OrderCreateOptionsInput) {
+    orderCreate(order: $order, options: $options) {
       order {
         id
-        displayFinancialStatus
+        name
       }
       userErrors {
         field
@@ -53,7 +40,7 @@ function hashField(value, normalizer) {
   return normalized ? sha256Hex(normalized) : undefined;
 }
 
-async function sendMetaPurchaseEvent({ eventId, value, currency, contentId, firstName, lastName, phone, city, email }) {
+async function sendMetaPurchaseEvent({ eventId, value, currency, contentId, nombre, telefono, ciudad, email }) {
   const pixelId = process.env.META_PIXEL_ID || '2177392419686177';
   const accessToken = process.env.META_CAPI_ACCESS_TOKEN;
 
@@ -62,12 +49,16 @@ async function sendMetaPurchaseEvent({ eventId, value, currency, contentId, firs
     return;
   }
 
+  const nameParts = String(nombre || '').trim().split(/\s+/);
+  const firstName = nameParts.shift() || '';
+  const lastName = nameParts.join(' ');
+
   const userData = {
     em: hashField(email),
-    ph: hashField(phone, normalizePhoneForHash),
+    ph: hashField(telefono, normalizePhoneForHash),
     fn: hashField(firstName),
     ln: hashField(lastName),
-    ct: hashField(city),
+    ct: hashField(ciudad),
     country: hashField('co')
   };
 
@@ -184,58 +175,125 @@ module.exports = async (req, res) => {
     return;
   }
 
-  const orderGid = `gid://shopify/Order/${reference}`;
+  const kvKey = `bold:pending:${reference}`;
 
   try {
-    const statusResult = await shopifyGraphQL(ORDER_STATUS_QUERY, { id: orderGid });
+    const pending = await kvGetJSON(kvKey);
 
-    if (statusResult.errors || !statusResult.data || !statusResult.data.order) {
-      console.error('bold-webhook: no se encontró la orden', reference, JSON.stringify(statusResult.errors || statusResult));
-      res.status(200).json({ received: true, warning: 'orden no encontrada' });
+    if (!pending) {
+      // Vencido (pasaron los 30 min), referencia inválida, o Redis ya no
+      // lo tiene por cualquier otra razón — no hay nada que crear.
+      console.error('bold-webhook: no se encontró el pedido pendiente en Redis', reference);
+      res.status(200).json({ received: true, warning: 'pedido pendiente no encontrado' });
       return;
     }
 
-    const order = statusResult.data.order;
-
-    if (String(order.displayFinancialStatus).toUpperCase() === 'PAID') {
+    if (pending.processed) {
       // Reintento de Bold sobre un webhook que ya procesamos: idempotente,
-      // no se vuelve a marcar como pagada ni se reenvía el evento a Meta.
+      // no se vuelve a crear la orden ni se reenvía el evento a Meta.
       res.status(200).json({ received: true, alreadyProcessed: true });
       return;
     }
 
-    const markPaidResult = await shopifyGraphQL(ORDER_MARK_AS_PAID_MUTATION, { input: { id: orderGid } });
+    const shopDomain = process.env.SHOPIFY_SHOP_DOMAIN;
+    const accessToken = process.env.SHOPIFY_ACCESS_TOKEN;
+    const variantId = process.env.SHOPIFY_VARIANT_ID;
 
-    if (markPaidResult.errors) {
-      console.error('bold-webhook: error de GraphQL marcando la orden como pagada', JSON.stringify(markPaidResult.errors));
-      res.status(500).json({ error: 'No se pudo confirmar el pago' });
+    if (!shopDomain || !accessToken || !variantId) {
+      console.error('bold-webhook: configuración de Shopify incompleta');
+      res.status(500).json({ error: 'Configuración del servidor incompleta' });
       return;
     }
 
-    const { userErrors } = markPaidResult.data.orderMarkAsPaid;
+    const { nombre, telefono, direccion, ciudad, email, prizeIds, wonSecondKitDiscount, amount } = pending;
+
+    const nameParts = String(nombre).trim().split(/\s+/);
+    const firstName = nameParts.shift() || nombre;
+    const lastName = nameParts.join(' ') || firstName;
+
+    const lineItems = [
+      { variantId: `gid://shopify/ProductVariant/${variantId}`, quantity: 1 }
+    ];
+
+    if (wonSecondKitDiscount) {
+      lineItems.push({
+        variantId: `gid://shopify/ProductVariant/${variantId}`,
+        quantity: 1,
+        priceSet: { shopMoney: { amount: SECOND_KIT_PRICE_COP, currencyCode: 'COP' } }
+      });
+    }
+
+    // La orden se crea YA pagada: se registra la transacción como
+    // capturada por la pasarela externa (Bold), que es la forma correcta
+    // en Shopify de reflejar un pago que no pasó por Shopify Payments.
+    const order = {
+      lineItems,
+      email,
+      shippingAddress: {
+        firstName,
+        lastName,
+        address1: direccion,
+        city: ciudad,
+        phone: telefono,
+        countryCode: 'CO'
+      },
+      phone: telefono,
+      financialStatus: 'PAID',
+      transactions: [
+        {
+          kind: 'SALE',
+          status: 'SUCCESS',
+          gateway: 'Bold',
+          amountSet: { shopMoney: { amount: String(amount), currencyCode: 'COP' } }
+        }
+      ]
+    };
+
+    const tags = (prizeIds || []).map((id) => `ruleta:${id}`);
+    tags.push('pago:bold');
+    order.tags = tags;
+
+    if ((prizeIds || []).includes('garantia-extra')) {
+      order.note = 'Premio de la ruleta: +5 días extra de garantía (20 días en total desde la entrega).';
+    }
+
+    const options = { inventoryBehaviour: 'DECREMENT_OBEYING_POLICY' };
+
+    const createResult = await shopifyGraphQL(ORDER_CREATE_MUTATION, { order, options });
+
+    if (createResult.errors) {
+      console.error('bold-webhook: error de GraphQL creando la orden', JSON.stringify(createResult.errors));
+      res.status(500).json({ error: 'No se pudo crear la orden' });
+      return;
+    }
+
+    const { order: createdOrder, userErrors } = createResult.data.orderCreate;
 
     if (userErrors && userErrors.length > 0) {
-      console.error('bold-webhook: userErrors marcando la orden como pagada', JSON.stringify(userErrors));
-      res.status(500).json({ error: 'No se pudo confirmar el pago' });
+      console.error('bold-webhook: userErrors creando la orden', JSON.stringify(userErrors));
+      res.status(500).json({ error: 'No se pudo crear la orden' });
       return;
     }
 
+    // Se marca como procesado ANTES de notificar a Meta, para que un
+    // reintento de Bold que llegue mientras tanto no dispare un segundo
+    // intento de creación.
+    await kvSetJSON(kvKey, { ...pending, processed: true, shopifyOrderId: createdOrder.id, shopifyOrderName: createdOrder.name }, PROCESSED_TTL_SECONDS);
+
     const amountData = payload.data.amount || {};
-    const address = order.shippingAddress || {};
 
     await sendMetaPurchaseEvent({
       eventId: payload.id,
-      value: amountData.total,
+      value: amountData.total || amount,
       currency: amountData.currency || 'COP',
-      contentId: process.env.SHOPIFY_VARIANT_ID,
-      firstName: address.firstName,
-      lastName: address.lastName,
-      phone: address.phone,
-      city: address.city,
-      email: order.email
+      contentId: variantId,
+      nombre,
+      telefono,
+      ciudad,
+      email
     });
 
-    res.status(200).json({ received: true });
+    res.status(200).json({ received: true, orderNumber: createdOrder.name });
   } catch (err) {
     console.error('bold-webhook: excepción inesperada', err && err.message ? err.message : err);
     res.status(500).json({ error: 'Excepción inesperada' });
