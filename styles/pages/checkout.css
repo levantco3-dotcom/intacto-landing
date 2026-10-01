@@ -288,10 +288,6 @@ details[open] .checkout-page__summary-meta svg {
   margin-top: 10px;
 }
 
-#bold-button-container {
-  margin-top: 12px;
-}
-
 .checkout-page__payment-badges {
   display: flex;
   flex-wrap: wrap;

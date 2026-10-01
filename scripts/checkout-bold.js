@@ -1,13 +1,10 @@
 (function () {
-  const BOLD_SCRIPT_SRC = 'https://checkout.bold.co/library/boldPaymentButton.js';
-
   document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('checkout-form');
     const codSubmitButton = document.getElementById('cod-submit-button');
     const boldArea = document.getElementById('bold-payment-area');
     const prepareButton = document.getElementById('bold-prepare-button');
     const errorText = document.getElementById('bold-prepare-error');
-    const buttonContainer = document.getElementById('bold-button-container');
     const paymentNote = document.getElementById('payment-method-note');
 
     if (!form || !codSubmitButton || !boldArea || !prepareButton) return;
@@ -31,17 +28,26 @@
       });
     });
 
-    let prepared = false;
+    // Una vez armado el checkout de Bold con los datos reales (order-id,
+    // monto, firma), se reutiliza: un segundo click solo vuelve a abrir el
+    // mismo widget, sin pegarle de nuevo al backend.
+    let checkout = null;
+    let preparing = false;
 
     prepareButton.addEventListener('click', async () => {
-      if (prepared) return;
+      if (checkout) {
+        checkout.open();
+        return;
+      }
+
+      if (preparing) return;
 
       if (!form.checkValidity()) {
         form.reportValidity();
         return;
       }
 
-      prepared = true;
+      preparing = true;
       prepareButton.disabled = true;
       prepareButton.textContent = 'Preparando pago...';
       errorText.hidden = true;
@@ -54,7 +60,7 @@
       const wheelState = window.INTACTO_WHEEL_STATE || {};
 
       try {
-        const draftResponse = await fetch('/api/create-bold-order', {
+        const orderResponse = await fetch('/api/create-bold-order', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -68,12 +74,12 @@
           })
         });
 
-        const draftData = await draftResponse.json();
-        if (!draftResponse.ok || !draftData.success) {
-          throw new Error(draftData.error || `HTTP ${draftResponse.status}`);
+        const orderData = await orderResponse.json();
+        if (!orderResponse.ok || !orderData.success) {
+          throw new Error(orderData.error || `HTTP ${orderResponse.status}`);
         }
 
-        const { orderId, amount, currency, apiKey } = draftData;
+        const { orderId, amount, currency, apiKey } = orderData;
 
         const signatureResponse = await fetch('/api/bold-signature', {
           method: 'POST',
@@ -86,30 +92,35 @@
           throw new Error(signatureData.error || `HTTP ${signatureResponse.status}`);
         }
 
-        const boldButton = document.createElement('button');
-        boldButton.type = 'button';
-        boldButton.setAttribute('data-bold-button', 'dark-L');
-        boldButton.setAttribute('data-api-key', apiKey);
-        boldButton.setAttribute('data-order-id', orderId);
-        boldButton.setAttribute('data-currency', currency);
-        boldButton.setAttribute('data-amount', String(amount));
-        boldButton.setAttribute('data-integrity-signature', signatureData.signature);
-        boldButton.setAttribute('data-description', 'Kit INTACTO');
-        boldButton.setAttribute('data-redirection-url', `${window.location.origin}/gracias`);
+        if (typeof BoldCheckout !== 'function') {
+          throw new Error('No se pudo cargar el widget de Bold. Recargá la página e intentá de nuevo.');
+        }
 
-        buttonContainer.appendChild(boldButton);
+        // Integración programática (no el botón data-bold-button): el
+        // monto y el order-id solo se conocen después de estas dos
+        // llamadas al backend, así que no hay forma de tenerlos listos de
+        // entrada como pide el botón declarativo de Bold.
+        checkout = new BoldCheckout({
+          orderId,
+          currency,
+          amount: String(amount),
+          apiKey,
+          integritySignature: signatureData.signature,
+          description: 'Kit INTACTO',
+          redirectionUrl: `${window.location.origin}/gracias`,
+          renderMode: 'embedded'
+        });
 
-        // El script de Bold escanea el DOM al cargarse, por eso se agrega
-        // recién ahora que el botón con sus atributos ya está en la página.
-        const script = document.createElement('script');
-        script.src = BOLD_SCRIPT_SRC;
-        document.body.appendChild(script);
-
-        prepareButton.hidden = true;
-      } catch (err) {
-        prepared = false;
         prepareButton.disabled = false;
-        prepareButton.textContent = 'Continuar al pago';
+        prepareButton.textContent = 'Pagar con Bold';
+        preparing = false;
+
+        checkout.open();
+      } catch (err) {
+        preparing = false;
+        checkout = null;
+        prepareButton.disabled = false;
+        prepareButton.textContent = 'Pagar con Bold';
         errorText.textContent = `No pudimos preparar el pago: ${err.message || 'error desconocido'}. Intenta de nuevo.`;
         errorText.hidden = false;
       }
