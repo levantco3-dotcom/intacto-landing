@@ -48,15 +48,7 @@
   font-weight: 700;
   font-size: clamp(1.75rem, 6vw, 2.25rem);
   color: var(--carbon);
-  margin-bottom: 4px;
-}
-
-.checkout-page__subtitle {
-  font-family: var(--font-body);
-  font-weight: 400;
-  font-size: 0.95rem;
-  color: var(--carbon-suave);
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 /* Resumen de pedido */
@@ -253,6 +245,35 @@ details[open] .checkout-page__summary-meta svg {
   border-width: 2px;
 }
 
+.checkout-page__field-hint {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  color: var(--carbon-suave);
+  margin: 0;
+}
+
+.checkout-page__input-icon-wrap {
+  position: relative;
+  display: flex;
+}
+
+.checkout-page__input-icon-wrap input,
+.checkout-page__input-icon-wrap select {
+  width: 100%;
+  padding-left: 42px;
+}
+
+.checkout-page__input-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  color: var(--carbon-suave);
+  pointer-events: none;
+}
+
 /* Método de pago */
 
 .checkout-page__payment-methods {
@@ -270,7 +291,7 @@ details[open] .checkout-page__summary-meta svg {
   border: 1px solid var(--crema-oscuro);
   border-radius: 8px;
   cursor: pointer;
-  transition: border-color 0.15s ease;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
 }
 
 .checkout-page__payment-option:has(input:checked) {
@@ -291,6 +312,47 @@ details[open] .checkout-page__summary-meta svg {
   justify-content: space-between;
   gap: 10px;
   flex-wrap: wrap;
+}
+
+/* La opción de Bold se destaca como "la recomendada": más padding, borde
+   marcado, fondo crema (dentro de la paleta) y contenido centrado en
+   columna en vez de la fila simple que usa la opción de COD. */
+.checkout-page__payment-option--bold {
+  align-items: flex-start;
+  padding: 20px 16px;
+  background-color: var(--crema);
+  border: 2px solid var(--cobre);
+}
+
+.checkout-page__payment-option--bold input[type="radio"] {
+  margin-top: 3px;
+}
+
+.checkout-page__payment-option-body--bold {
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+}
+
+.checkout-page__payment-recommended {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.6875rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--blanco-calido);
+  background-color: var(--cobre);
+  padding: 4px 10px;
+  border-radius: 100px;
+}
+
+.checkout-page__payment-headline {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.25rem, 4.5vw, 1.5rem);
+  line-height: 1.15;
+  color: var(--carbon);
 }
 
 .checkout-page__payment-price {
@@ -317,6 +379,19 @@ details[open] .checkout-page__summary-meta svg {
   color: var(--cobre-oscuro);
 }
 
+.checkout-page__payment-price--bold {
+  text-align: center;
+}
+
+.checkout-page__payment-price--bold .checkout-page__payment-price-old {
+  font-size: 0.9rem;
+}
+
+.checkout-page__payment-price--bold .checkout-page__payment-price-new {
+  font-size: 1.75rem;
+  line-height: 1;
+}
+
 .checkout-page__bold-area {
   margin-top: 12px;
 }
@@ -335,6 +410,10 @@ details[open] .checkout-page__summary-meta svg {
   gap: 8px;
 }
 
+.checkout-page__payment-badges--centered {
+  justify-content: center;
+}
+
 .checkout-page__payment-chip {
   display: inline-flex;
   align-items: center;
@@ -345,6 +424,10 @@ details[open] .checkout-page__summary-meta svg {
   border-radius: 4px;
   padding: 0 10px;
   box-sizing: border-box;
+}
+
+.checkout-page__payment-option--bold .checkout-page__payment-chip {
+  background-color: var(--blanco-calido);
 }
 
 .checkout-page__payment-logo {

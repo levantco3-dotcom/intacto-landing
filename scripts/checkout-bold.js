@@ -50,20 +50,28 @@
 
     const radios = form.querySelectorAll('input[name="payment-method"]');
 
+    function applyPaymentMethodUI(isBold) {
+      codSubmitButton.hidden = isBold;
+      codSubmitButton.disabled = isBold;
+      boldArea.hidden = !isBold;
+
+      if (paymentNote) {
+        paymentNote.textContent = isBold
+          ? 'Pago seguro procesado por Bold — tarjeta, Nequi o Bre-B.'
+          : 'Pagas en efectivo o con datáfono cuando recibas tu pedido — sin adelantos.';
+      }
+    }
+
+    // Bold viene pre-seleccionado por defecto (checked en el HTML), así que
+    // el estado inicial de la UI se aplica una vez al cargar — el evento
+    // 'change' nunca dispara para una opción que ya nace marcada.
+    const initiallyChecked = Array.prototype.find.call(radios, (r) => r.checked);
+    applyPaymentMethodUI(!!initiallyChecked && initiallyChecked.value === 'bold');
+
     radios.forEach((radio) => {
       radio.addEventListener('change', () => {
-        const isBold = radio.value === 'bold' && radio.checked;
         if (!radio.checked) return;
-
-        codSubmitButton.hidden = isBold;
-        codSubmitButton.disabled = isBold;
-        boldArea.hidden = !isBold;
-
-        if (paymentNote) {
-          paymentNote.textContent = isBold
-            ? 'Pago seguro procesado por Bold — tarjeta, Nequi o Bre-B.'
-            : 'Pagas en efectivo o con datáfono cuando recibas tu pedido — sin adelantos.';
-        }
+        applyPaymentMethodUI(radio.value === 'bold');
       });
     });
 

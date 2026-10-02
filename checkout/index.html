@@ -38,7 +38,6 @@
 
   <main class="checkout-page">
     <h1 class="checkout-page__title">Confirma tu pedido</h1>
-    <p class="checkout-page__subtitle">Pago contra entrega. Sin letra pequeña.</p>
 
     <section class="checkout-page__summary">
       <details>
@@ -95,21 +94,39 @@
 
           <div class="checkout-page__field">
             <label for="telefono">WhatsApp</label>
-            <input type="tel" id="telefono" name="telefono" autocomplete="tel-national" inputmode="numeric" pattern="[0-9]{10}" maxlength="10" title="10 dígitos, sin indicativo (ej: 3001234567)" required>
+            <div class="checkout-page__input-icon-wrap">
+              <svg class="checkout-page__input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"></path>
+              </svg>
+              <input type="tel" id="telefono" name="telefono" autocomplete="tel-national" inputmode="numeric" pattern="[0-9]{10}" maxlength="10" title="10 dígitos, sin indicativo (ej: 3001234567)" required>
+            </div>
           </div>
 
           <div class="checkout-page__field">
             <label for="departamento">Departamento</label>
-            <select id="departamento" name="departamento" autocomplete="address-level1" required>
-              <option value="" disabled selected>Selecciona tu departamento</option>
-            </select>
+            <div class="checkout-page__input-icon-wrap">
+              <svg class="checkout-page__input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 1 1 18 0z"></path>
+                <circle cx="12" cy="10" r="3"></circle>
+              </svg>
+              <select id="departamento" name="departamento" autocomplete="address-level1" required>
+                <option value="" disabled selected>Selecciona tu departamento</option>
+              </select>
+            </div>
           </div>
 
           <div class="checkout-page__field">
             <label for="ciudad">Ciudad / Municipio</label>
-            <select id="ciudad" name="ciudad" autocomplete="address-level2" required disabled>
-              <option value="" disabled selected>Primero selecciona el departamento</option>
-            </select>
+            <div class="checkout-page__input-icon-wrap">
+              <svg class="checkout-page__input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 1 1 18 0z"></path>
+                <circle cx="12" cy="10" r="3"></circle>
+              </svg>
+              <select id="ciudad" name="ciudad" autocomplete="address-level2" required disabled>
+                <option value="" disabled selected>Primero selecciona el departamento</option>
+              </select>
+            </div>
+            <p class="checkout-page__field-hint">¿No aparece tu ciudad? Selecciona "Otro municipio" y escribila abajo.</p>
           </div>
 
           <div class="checkout-page__field" id="ciudad-otro-field" hidden>
@@ -133,18 +150,12 @@
         <h2 class="checkout-page__section-title">Método de pago</h2>
 
         <div class="checkout-page__payment-methods">
-          <label class="checkout-page__payment-option">
-            <input type="radio" name="payment-method" value="cod" checked>
-            <span class="checkout-page__payment-option-body">
-              <span class="checkout-page__payment-chip checkout-page__payment-chip--text">Contra entrega</span>
-              <span class="checkout-page__payment-price" id="cod-price">$119.900</span>
-            </span>
-          </label>
-
-          <label class="checkout-page__payment-option">
-            <input type="radio" name="payment-method" value="bold">
-            <span class="checkout-page__payment-option-body">
-              <span class="checkout-page__payment-badges">
+          <label class="checkout-page__payment-option checkout-page__payment-option--bold">
+            <input type="radio" name="payment-method" value="bold" checked>
+            <span class="checkout-page__payment-option-body checkout-page__payment-option-body--bold">
+              <span class="checkout-page__payment-recommended">Recomendado</span>
+              <span class="checkout-page__payment-headline">Paga con tarjeta y ahorra 5%</span>
+              <span class="checkout-page__payment-badges checkout-page__payment-badges--centered">
                 <span class="checkout-page__payment-chip">
                   <img class="checkout-page__payment-logo" src="../assets/images/logo%20visa%20mastercard.jpg" alt="Visa / Mastercard" loading="lazy">
                 </span>
@@ -154,22 +165,29 @@
                 <span class="checkout-page__payment-chip">
                   <img class="checkout-page__payment-logo" src="../assets/images/Bre-B-logo.jpg" alt="Bre-B" loading="lazy">
                 </span>
-                <span class="checkout-page__payment-chip checkout-page__payment-chip--text">Pagar ahora</span>
               </span>
-              <span class="checkout-page__payment-price">
+              <span class="checkout-page__payment-price checkout-page__payment-price--bold">
                 <span class="checkout-page__payment-price-old" id="bold-price-old">$119.900</span>
                 <span class="checkout-page__payment-price-new" id="bold-price-new">$113.905</span>
               </span>
             </span>
           </label>
+
+          <label class="checkout-page__payment-option checkout-page__payment-option--cod">
+            <input type="radio" name="payment-method" value="cod">
+            <span class="checkout-page__payment-option-body">
+              <span class="checkout-page__payment-chip checkout-page__payment-chip--text">Pago contra entrega</span>
+              <span class="checkout-page__payment-price" id="cod-price">$119.900</span>
+            </span>
+          </label>
         </div>
 
-        <p class="checkout-page__payment-note" id="payment-method-note">Pagas en efectivo o con datáfono cuando recibas tu pedido — sin adelantos.</p>
+        <p class="checkout-page__payment-note" id="payment-method-note">Pago seguro procesado por Bold — tarjeta, Nequi o Bre-B.</p>
       </section>
 
-      <button class="checkout-page__submit" type="submit" id="cod-submit-button">Confirmar pedido</button>
+      <button class="checkout-page__submit" type="submit" id="cod-submit-button" hidden disabled>Confirmar pedido</button>
 
-      <div class="checkout-page__bold-area" id="bold-payment-area" hidden>
+      <div class="checkout-page__bold-area" id="bold-payment-area">
         <button class="checkout-page__submit" type="button" id="bold-prepare-button">Pagar con Bold</button>
         <p class="checkout-page__bold-error" id="bold-prepare-error" hidden></p>
       </div>
