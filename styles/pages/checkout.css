@@ -224,7 +224,8 @@ details[open] .checkout-page__summary-meta svg {
   color: var(--carbon);
 }
 
-.checkout-page__field input {
+.checkout-page__field input,
+.checkout-page__field select {
   font-family: var(--font-body);
   font-size: 1rem;
   color: var(--carbon);
@@ -235,7 +236,13 @@ details[open] .checkout-page__summary-meta svg {
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.checkout-page__field input:focus-visible {
+.checkout-page__field select:disabled {
+  color: var(--carbon-suave);
+  cursor: not-allowed;
+}
+
+.checkout-page__field input:focus-visible,
+.checkout-page__field select:focus-visible {
   outline: none;
   border-color: var(--cobre);
   box-shadow: 0 0 0 3px rgba(181, 118, 58, 0.18);
@@ -275,6 +282,39 @@ details[open] .checkout-page__summary-meta svg {
   width: 18px;
   height: 18px;
   accent-color: var(--cobre);
+}
+
+.checkout-page__payment-option-body {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.checkout-page__payment-price {
+  flex: 0 0 auto;
+  text-align: right;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--carbon);
+}
+
+.checkout-page__payment-price-old {
+  display: block;
+  font-weight: 400;
+  font-size: 0.75rem;
+  color: var(--carbon-suave);
+  text-decoration: line-through;
+}
+
+.checkout-page__payment-price-new {
+  display: block;
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--cobre-oscuro);
 }
 
 .checkout-page__bold-area {

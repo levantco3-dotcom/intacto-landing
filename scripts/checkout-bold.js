@@ -1,5 +1,44 @@
 (function () {
+  const KIT_PRICE_COP = 119900;
+  const SECOND_KIT_PRICE_COP = 83930;
+
+  function formatCOP(amount) {
+    return '$' + Math.round(amount).toLocaleString('es-CO');
+  }
+
+  // Estimación client-side SOLO para mostrar el precio antes de pagar — el
+  // monto real y la firma siempre los calcula el servidor en
+  // create-bold-order.js, nunca se confía en esto para cobrar.
+  function computeSubtotal() {
+    const wheelState = window.INTACTO_WHEEL_STATE || {};
+    const prizeIds = wheelState.prizeIds || [];
+    const wonSecondKit = prizeIds.includes('segundo-kit-30') && wheelState.wantsSecondKit === true;
+    return wonSecondKit ? KIT_PRICE_COP + SECOND_KIT_PRICE_COP : KIT_PRICE_COP;
+  }
+
+  function computeBoldDiscountRate() {
+    const wheelState = window.INTACTO_WHEEL_STATE || {};
+    const prizeIds = wheelState.prizeIds || [];
+    let rate = 0.05; // siempre 5% por elegir pagar con Bold
+    if (prizeIds.includes('prepago-5')) rate += 0.05; // se acumula con el premio de la ruleta
+    return rate;
+  }
+
+  function updatePriceDisplays() {
+    const subtotal = computeSubtotal();
+    const codPriceEl = document.getElementById('cod-price');
+    const boldOldEl = document.getElementById('bold-price-old');
+    const boldNewEl = document.getElementById('bold-price-new');
+
+    if (codPriceEl) codPriceEl.textContent = formatCOP(subtotal);
+    if (boldOldEl) boldOldEl.textContent = formatCOP(subtotal);
+    if (boldNewEl) boldNewEl.textContent = formatCOP(subtotal * (1 - computeBoldDiscountRate()));
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
+    updatePriceDisplays();
+    window.addEventListener('intacto:wheel-state-changed', updatePriceDisplays);
+
     const form = document.getElementById('checkout-form');
     const codSubmitButton = document.getElementById('cod-submit-button');
     const boldArea = document.getElementById('bold-payment-area');
@@ -34,6 +73,16 @@
     let checkout = null;
     let preparing = false;
 
+    function resolveCiudad() {
+      const ciudadSelect = document.getElementById('ciudad');
+      const ciudadOtroInput = document.getElementById('ciudad-otro');
+      const OTRO_VALUE = window.COLOMBIA_OTHER_CITY_VALUE || '__otro__';
+      if (ciudadSelect && ciudadSelect.value === OTRO_VALUE) {
+        return ciudadOtroInput ? ciudadOtroInput.value.trim() : '';
+      }
+      return ciudadSelect ? ciudadSelect.value : '';
+    }
+
     prepareButton.addEventListener('click', async () => {
       if (checkout) {
         checkout.open();
@@ -53,9 +102,12 @@
       errorText.hidden = true;
 
       const nombre = form.nombre.value.trim();
+      const apellidos = form.apellidos.value.trim();
       const telefono = form.telefono.value.trim();
       const direccion = form.direccion.value.trim();
-      const ciudad = form.ciudad.value.trim();
+      const direccion2 = form.direccion2.value.trim();
+      const departamento = document.getElementById('departamento').value;
+      const ciudad = resolveCiudad();
       const email = form.email.value.trim();
       const wheelState = window.INTACTO_WHEEL_STATE || {};
 
@@ -65,8 +117,11 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             nombre,
+            apellidos,
             telefono,
             direccion,
+            direccion2,
+            departamento,
             ciudad,
             email,
             wheelTokens: wheelState.tokens || [],

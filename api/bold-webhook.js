@@ -3,7 +3,6 @@ const { verifyWebhookSignature, readRawBody } = require('./_lib/bold');
 const { kvGetJSON, kvSetJSON } = require('./_lib/kv');
 
 const META_GRAPH_VERSION = 'v21.0';
-const SECOND_KIT_PRICE_COP = '83930';
 const PROCESSED_TTL_SECONDS = 2 * 24 * 60 * 60; // 2 días: cubre el último reintento de Bold (24h) con margen
 
 const ORDER_CREATE_MUTATION = `
@@ -40,7 +39,7 @@ function hashField(value, normalizer) {
   return normalized ? sha256Hex(normalized) : undefined;
 }
 
-async function sendMetaPurchaseEvent({ eventId, value, currency, contentId, nombre, telefono, ciudad, email }) {
+async function sendMetaPurchaseEvent({ eventId, value, currency, contentId, nombre, apellidos, telefono, ciudad, email }) {
   const pixelId = process.env.META_PIXEL_ID || '2177392419686177';
   const accessToken = process.env.META_CAPI_ACCESS_TOKEN;
 
@@ -49,15 +48,11 @@ async function sendMetaPurchaseEvent({ eventId, value, currency, contentId, nomb
     return;
   }
 
-  const nameParts = String(nombre || '').trim().split(/\s+/);
-  const firstName = nameParts.shift() || '';
-  const lastName = nameParts.join(' ');
-
   const userData = {
     em: hashField(email),
     ph: hashField(telefono, normalizePhoneForHash),
-    fn: hashField(firstName),
-    ln: hashField(lastName),
+    fn: hashField(nombre),
+    ln: hashField(apellidos),
     ct: hashField(ciudad),
     country: hashField('co')
   };
@@ -205,35 +200,54 @@ module.exports = async (req, res) => {
       return;
     }
 
-    const { nombre, telefono, direccion, ciudad, email, prizeIds, wonSecondKitDiscount, amount } = pending;
-
-    const nameParts = String(nombre).trim().split(/\s+/);
-    const firstName = nameParts.shift() || nombre;
-    const lastName = nameParts.join(' ') || firstName;
+    const {
+      nombre,
+      apellidos,
+      telefono,
+      direccion,
+      direccion2,
+      departamento,
+      ciudad,
+      email,
+      prizeIds,
+      wonSecondKitDiscount,
+      kitPrice,
+      secondKitPrice,
+      amount
+    } = pending;
 
     const lineItems = [
-      { variantId: `gid://shopify/ProductVariant/${variantId}`, quantity: 1 }
+      {
+        variantId: `gid://shopify/ProductVariant/${variantId}`,
+        quantity: 1,
+        priceSet: { shopMoney: { amount: String(kitPrice), currencyCode: 'COP' } }
+      }
     ];
 
     if (wonSecondKitDiscount) {
       lineItems.push({
         variantId: `gid://shopify/ProductVariant/${variantId}`,
         quantity: 1,
-        priceSet: { shopMoney: { amount: SECOND_KIT_PRICE_COP, currencyCode: 'COP' } }
+        priceSet: { shopMoney: { amount: String(secondKitPrice), currencyCode: 'COP' } }
       });
     }
 
     // La orden se crea YA pagada: se registra la transacción como
     // capturada por la pasarela externa (Bold), que es la forma correcta
     // en Shopify de reflejar un pago que no pasó por Shopify Payments.
+    // Los precios de los line items ya vienen con el descuento de Bold
+    // (5%, o 10% si además ganó el premio "prepago-5" de la ruleta)
+    // aplicado desde create-bold-order.js — acá no se recalcula nada.
     const order = {
       lineItems,
       email,
       shippingAddress: {
-        firstName,
-        lastName,
+        firstName: nombre,
+        lastName: apellidos,
         address1: direccion,
+        address2: direccion2,
         city: ciudad,
+        province: departamento,
         phone: telefono,
         countryCode: 'CO'
       },
@@ -288,6 +302,7 @@ module.exports = async (req, res) => {
       currency: amountData.currency || 'COP',
       contentId: variantId,
       nombre,
+      apellidos,
       telefono,
       ciudad,
       email

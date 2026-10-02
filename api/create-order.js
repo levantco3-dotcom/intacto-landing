@@ -2,6 +2,8 @@ const crypto = require('crypto');
 const { verifyToken } = require('./_lib/wheel-token');
 
 const SECOND_KIT_PRICE_COP = '83930'; // $119.900 con 30% off, como string per MoneyBagInput
+const PHONE_REGEX = /^\d{10}$/;
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const ORDER_CREATE_MUTATION = `
   mutation orderCreate($order: OrderCreateOrderInput!, $options: OrderCreateOptionsInput) {
@@ -49,8 +51,8 @@ async function sendMetaPurchaseEvent({
   currency,
   contentId,
   nombre,
+  apellidos,
   telefono,
-  direccion,
   ciudad,
   email,
   clientIp,
@@ -67,24 +69,16 @@ async function sendMetaPurchaseEvent({
     return;
   }
 
-  const nameParts = String(nombre || '').trim().split(/\s+/);
-  const firstName = nameParts.shift() || '';
-  const lastName = nameParts.join(' ');
-
   const userData = {
     em: hashField(email),
     ph: hashField(telefono, normalizePhoneForHash),
-    fn: hashField(firstName),
-    ln: hashField(lastName),
+    fn: hashField(nombre),
+    ln: hashField(apellidos),
     ct: hashField(ciudad),
     country: hashField('co'),
     client_ip_address: clientIp || undefined,
     client_user_agent: clientUserAgent || undefined
   };
-
-  // direccion (calle) no tiene un campo estándar de user_data en Meta CAPI
-  // (solo ct/st/zp/country están soportados como geo), así que no se manda.
-  void direccion;
 
   Object.keys(userData).forEach((key) => {
     if (userData[key] === undefined) delete userData[key];
@@ -149,18 +143,40 @@ module.exports = async (req, res) => {
     return;
   }
 
-  const { nombre, telefono, direccion, ciudad, email, eventId, eventSourceUrl, wheelTokens, wantsSecondKit } = req.body || {};
+  const {
+    nombre,
+    apellidos,
+    telefono,
+    direccion,
+    direccion2,
+    departamento,
+    ciudad,
+    email,
+    eventId,
+    eventSourceUrl,
+    wheelTokens,
+    wantsSecondKit
+  } = req.body || {};
 
   // El premio nunca se confía a lo que mande el cliente: cada token se
   // vuelve a verificar acá. Los inválidos/vencidos/manipulados se descartan
-  // en silencio (como si no hubiera ganado ese giro). Puede haber hasta 2
-  // premios válidos (máximo 2 giros por sesión).
+  // en silencio (como si no hubiera ganado ese giro).
   const prizeIds = Array.isArray(wheelTokens)
     ? Array.from(new Set(wheelTokens.map((t) => verifyToken(t)).filter(Boolean)))
     : [];
 
-  if (!nombre || !telefono || !direccion || !ciudad || !email) {
+  if (!nombre || !apellidos || !telefono || !direccion || !direccion2 || !departamento || !ciudad || !email) {
     res.status(400).json({ success: false, error: 'Faltan datos del formulario' });
+    return;
+  }
+
+  if (!PHONE_REGEX.test(telefono)) {
+    res.status(400).json({ success: false, error: 'El WhatsApp debe tener exactamente 10 dígitos, sin indicativo' });
+    return;
+  }
+
+  if (!EMAIL_REGEX.test(email)) {
+    res.status(400).json({ success: false, error: 'El correo electrónico no es válido' });
     return;
   }
 
@@ -172,10 +188,6 @@ module.exports = async (req, res) => {
     res.status(500).json({ success: false, error: 'Configuración del servidor incompleta' });
     return;
   }
-
-  const nameParts = String(nombre).trim().split(/\s+/);
-  const firstName = nameParts.shift() || nombre;
-  const lastName = nameParts.join(' ') || firstName;
 
   const lineItems = [
     {
@@ -203,10 +215,12 @@ module.exports = async (req, res) => {
     lineItems,
     email,
     shippingAddress: {
-      firstName,
-      lastName,
+      firstName: nombre,
+      lastName: apellidos,
       address1: direccion,
+      address2: direccion2,
       city: ciudad,
+      province: departamento,
       phone: telefono,
       countryCode: 'CO'
     },
@@ -279,8 +293,8 @@ module.exports = async (req, res) => {
       currency: 'COP',
       contentId: variantId,
       nombre,
+      apellidos,
       telefono,
-      direccion,
       ciudad,
       email,
       clientIp,

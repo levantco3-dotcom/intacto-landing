@@ -80,7 +80,12 @@
         <div class="checkout-page__fields">
           <div class="checkout-page__field">
             <label for="nombre">Nombre completo</label>
-            <input type="text" id="nombre" name="nombre" autocomplete="name" required>
+            <input type="text" id="nombre" name="nombre" autocomplete="given-name" required>
+          </div>
+
+          <div class="checkout-page__field">
+            <label for="apellidos">Apellidos</label>
+            <input type="text" id="apellidos" name="apellidos" autocomplete="family-name" required>
           </div>
 
           <div class="checkout-page__field">
@@ -89,8 +94,27 @@
           </div>
 
           <div class="checkout-page__field">
-            <label for="telefono">Teléfono</label>
-            <input type="tel" id="telefono" name="telefono" autocomplete="tel" inputmode="numeric" required>
+            <label for="telefono">WhatsApp</label>
+            <input type="tel" id="telefono" name="telefono" autocomplete="tel-national" inputmode="numeric" pattern="[0-9]{10}" maxlength="10" title="10 dígitos, sin indicativo (ej: 3001234567)" required>
+          </div>
+
+          <div class="checkout-page__field">
+            <label for="departamento">Departamento</label>
+            <select id="departamento" name="departamento" autocomplete="address-level1" required>
+              <option value="" disabled selected>Selecciona tu departamento</option>
+            </select>
+          </div>
+
+          <div class="checkout-page__field">
+            <label for="ciudad">Ciudad / Municipio</label>
+            <select id="ciudad" name="ciudad" autocomplete="address-level2" required disabled>
+              <option value="" disabled selected>Primero selecciona el departamento</option>
+            </select>
+          </div>
+
+          <div class="checkout-page__field" id="ciudad-otro-field" hidden>
+            <label for="ciudad-otro">Escribe tu ciudad o municipio</label>
+            <input type="text" id="ciudad-otro" name="ciudad-otro">
           </div>
 
           <div class="checkout-page__field">
@@ -99,8 +123,8 @@
           </div>
 
           <div class="checkout-page__field">
-            <label for="ciudad">Ciudad</label>
-            <input type="text" id="ciudad" name="ciudad" autocomplete="address-level2" required>
+            <label for="direccion2">Tipo de inmueble y punto de referencia</label>
+            <input type="text" id="direccion2" name="direccion2" autocomplete="address-line2" placeholder="Ej: Apto 901, torre Toscana" required>
           </div>
         </div>
       </section>
@@ -111,22 +135,31 @@
         <div class="checkout-page__payment-methods">
           <label class="checkout-page__payment-option">
             <input type="radio" name="payment-method" value="cod" checked>
-            <span class="checkout-page__payment-chip checkout-page__payment-chip--text">Contra entrega</span>
+            <span class="checkout-page__payment-option-body">
+              <span class="checkout-page__payment-chip checkout-page__payment-chip--text">Contra entrega</span>
+              <span class="checkout-page__payment-price" id="cod-price">$119.900</span>
+            </span>
           </label>
 
           <label class="checkout-page__payment-option">
             <input type="radio" name="payment-method" value="bold">
-            <span class="checkout-page__payment-badges">
-              <span class="checkout-page__payment-chip">
-                <img class="checkout-page__payment-logo" src="../assets/images/logo%20visa%20mastercard.jpg" alt="Visa / Mastercard" loading="lazy">
+            <span class="checkout-page__payment-option-body">
+              <span class="checkout-page__payment-badges">
+                <span class="checkout-page__payment-chip">
+                  <img class="checkout-page__payment-logo" src="../assets/images/logo%20visa%20mastercard.jpg" alt="Visa / Mastercard" loading="lazy">
+                </span>
+                <span class="checkout-page__payment-chip">
+                  <img class="checkout-page__payment-logo" src="../assets/images/logo-nequi.jpg" alt="Nequi" loading="lazy">
+                </span>
+                <span class="checkout-page__payment-chip">
+                  <img class="checkout-page__payment-logo" src="../assets/images/Bre-B-logo.jpg" alt="Bre-B" loading="lazy">
+                </span>
+                <span class="checkout-page__payment-chip checkout-page__payment-chip--text">Pagar ahora</span>
               </span>
-              <span class="checkout-page__payment-chip">
-                <img class="checkout-page__payment-logo" src="../assets/images/logo-nequi.jpg" alt="Nequi" loading="lazy">
+              <span class="checkout-page__payment-price">
+                <span class="checkout-page__payment-price-old" id="bold-price-old">$119.900</span>
+                <span class="checkout-page__payment-price-new" id="bold-price-new">$113.905</span>
               </span>
-              <span class="checkout-page__payment-chip">
-                <img class="checkout-page__payment-logo" src="../assets/images/Bre-B-logo.jpg" alt="Bre-B" loading="lazy">
-              </span>
-              <span class="checkout-page__payment-chip checkout-page__payment-chip--text">Pagar ahora</span>
             </span>
           </label>
         </div>
@@ -171,6 +204,7 @@
 
   <div id="wheel-modal-root"></div>
 
+  <script src="../scripts/colombia-locations.js"></script>
   <script src="../scripts/checkout-page.js"></script>
   <script src="../scripts/checkout-wheel.js"></script>
   <script src="https://checkout.bold.co/library/boldPaymentButton.js"></script>

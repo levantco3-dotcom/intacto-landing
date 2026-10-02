@@ -115,6 +115,7 @@
         : '1 kit por <strong>$119.900</strong>';
       window.INTACTO_WHEEL_STATE.wantsSecondKit = checkbox.checked;
       updateSummaryPrice(checkbox.checked);
+      window.dispatchEvent(new Event('intacto:wheel-state-changed'));
     }
 
     checkbox.addEventListener('change', refresh);
@@ -131,10 +132,13 @@
   function applyWonPrizes() {
     const won = loadPrizesWon();
     window.INTACTO_WHEEL_STATE.tokens = won.map((p) => p.token);
+    window.INTACTO_WHEEL_STATE.prizeIds = won.map((p) => p.prizeId);
 
     if (won.some((p) => p.prizeId === 'segundo-kit-30')) {
       renderSecondKitBanner();
     }
+
+    window.dispatchEvent(new Event('intacto:wheel-state-changed'));
   }
 
   // -- Dibujo de la ruleta (SVG) --------------------------------------------

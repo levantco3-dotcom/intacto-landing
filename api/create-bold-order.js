@@ -2,8 +2,11 @@ const crypto = require('crypto');
 const { verifyToken } = require('./_lib/wheel-token');
 const { kvSetJSON } = require('./_lib/kv');
 
-const SECOND_KIT_PRICE_COP = '83930'; // $119.900 con 30% off, como string per MoneyBagInput
+const KIT_PRICE_COP = 119900;
+const SECOND_KIT_PRICE_COP = 83930; // $119.900 con 30% off de la ruleta
 const PENDING_TTL_SECONDS = 30 * 60; // 30 minutos para completar el pago en Bold
+const PHONE_REGEX = /^\d{10}$/;
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 module.exports = async (req, res) => {
   if (req.method !== 'POST') {
@@ -11,10 +14,31 @@ module.exports = async (req, res) => {
     return;
   }
 
-  const { nombre, telefono, direccion, ciudad, email, wheelTokens, wantsSecondKit } = req.body || {};
+  const {
+    nombre,
+    apellidos,
+    telefono,
+    direccion,
+    direccion2,
+    departamento,
+    ciudad,
+    email,
+    wheelTokens,
+    wantsSecondKit
+  } = req.body || {};
 
-  if (!nombre || !telefono || !direccion || !ciudad || !email) {
+  if (!nombre || !apellidos || !telefono || !direccion || !direccion2 || !departamento || !ciudad || !email) {
     res.status(400).json({ success: false, error: 'Faltan datos del formulario' });
+    return;
+  }
+
+  if (!PHONE_REGEX.test(telefono)) {
+    res.status(400).json({ success: false, error: 'El WhatsApp debe tener exactamente 10 dígitos, sin indicativo' });
+    return;
+  }
+
+  if (!EMAIL_REGEX.test(email)) {
+    res.status(400).json({ success: false, error: 'El correo electrónico no es válido' });
     return;
   }
 
@@ -32,7 +56,18 @@ module.exports = async (req, res) => {
     : [];
 
   const wonSecondKitDiscount = prizeIds.includes('segundo-kit-30') && wantsSecondKit === true;
-  const amount = wonSecondKitDiscount ? 119900 + Number(SECOND_KIT_PRICE_COP) : 119900;
+
+  // Descuento por pagar con Bold: 5% automático para cualquiera que pague
+  // así (tarjeta/Nequi/Bre-B), sin importar la ruleta. Si además ganó el
+  // premio "5% off pago ya" de la ruleta, se ACUMULA (10% total) — es
+  // intencional, no son mutuamente excluyentes.
+  let boldDiscountRate = 0.05;
+  if (prizeIds.includes('prepago-5')) boldDiscountRate += 0.05;
+  const boldFactor = 1 - boldDiscountRate;
+
+  const kitPrice = Math.round(KIT_PRICE_COP * boldFactor);
+  const secondKitPrice = wonSecondKitDiscount ? Math.round(SECOND_KIT_PRICE_COP * boldFactor) : 0;
+  const amount = kitPrice + secondKitPrice;
 
   // La orden en Shopify NO se crea acá. Solo se guarda temporalmente en
   // Redis (Upstash) lo necesario para crearla cuando llegue la
@@ -43,12 +78,17 @@ module.exports = async (req, res) => {
 
   const pendingOrder = {
     nombre,
+    apellidos,
     telefono,
     direccion,
+    direccion2,
+    departamento,
     ciudad,
     email,
     prizeIds,
     wonSecondKitDiscount,
+    kitPrice,
+    secondKitPrice,
     amount,
     processed: false,
     createdAt: Date.now()

@@ -22,10 +22,73 @@ document.addEventListener('DOMContentLoaded', () => {
   const telefonoInput = document.getElementById('telefono');
   if (telefonoInput) {
     telefonoInput.addEventListener('input', () => {
-      const digits = telefonoInput.value.replace(/\D/g, '');
-      const isInvalid = digits.length > 0 && digits.length !== 10;
-      telefonoInput.setAttribute('data-invalid', String(isInvalid));
+      telefonoInput.value = telefonoInput.value.replace(/\D/g, '').slice(0, 10);
     });
+  }
+
+  // -- Departamento → Ciudad (cascada) --------------------------------------
+  const departamentoSelect = document.getElementById('departamento');
+  const ciudadSelect = document.getElementById('ciudad');
+  const ciudadOtroField = document.getElementById('ciudad-otro-field');
+  const ciudadOtroInput = document.getElementById('ciudad-otro');
+  const departamentos = window.COLOMBIA_DEPARTMENTS || [];
+  const OTRO_VALUE = window.COLOMBIA_OTHER_CITY_VALUE || '__otro__';
+
+  if (departamentoSelect && ciudadSelect) {
+    departamentos.forEach((dep) => {
+      const option = document.createElement('option');
+      option.value = dep.name;
+      option.textContent = dep.name;
+      departamentoSelect.appendChild(option);
+    });
+
+    departamentoSelect.addEventListener('change', () => {
+      const selected = departamentos.find((dep) => dep.name === departamentoSelect.value);
+
+      ciudadSelect.innerHTML = '';
+      const placeholder = document.createElement('option');
+      placeholder.value = '';
+      placeholder.disabled = true;
+      placeholder.selected = true;
+      placeholder.textContent = 'Selecciona tu ciudad/municipio';
+      ciudadSelect.appendChild(placeholder);
+
+      if (selected) {
+        selected.cities.forEach((city) => {
+          const option = document.createElement('option');
+          option.value = city;
+          option.textContent = city;
+          ciudadSelect.appendChild(option);
+        });
+
+        const otroOption = document.createElement('option');
+        otroOption.value = OTRO_VALUE;
+        otroOption.textContent = 'Otro municipio';
+        ciudadSelect.appendChild(otroOption);
+
+        ciudadSelect.disabled = false;
+      } else {
+        ciudadSelect.disabled = true;
+      }
+
+      ciudadOtroField.hidden = true;
+      ciudadOtroInput.required = false;
+      ciudadOtroInput.value = '';
+    });
+
+    ciudadSelect.addEventListener('change', () => {
+      const isOtro = ciudadSelect.value === OTRO_VALUE;
+      ciudadOtroField.hidden = !isOtro;
+      ciudadOtroInput.required = isOtro;
+      if (!isOtro) ciudadOtroInput.value = '';
+    });
+  }
+
+  function resolveCiudad() {
+    if (ciudadSelect && ciudadSelect.value === OTRO_VALUE) {
+      return ciudadOtroInput.value.trim();
+    }
+    return ciudadSelect ? ciudadSelect.value : '';
   }
 
   const submitButton = form.querySelector('.checkout-page__submit');
@@ -41,9 +104,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (selectedMethod && selectedMethod.value === 'bold') return;
 
     const nombre = form.nombre.value.trim();
+    const apellidos = form.apellidos.value.trim();
     const telefono = form.telefono.value.trim();
     const direccion = form.direccion.value.trim();
-    const ciudad = form.ciudad.value.trim();
+    const direccion2 = form.direccion2.value.trim();
+    const departamento = departamentoSelect ? departamentoSelect.value : '';
+    const ciudad = resolveCiudad();
     const email = form.email.value.trim();
 
     // event_id único por pedido: se manda al backend para que dispare la
@@ -54,9 +120,9 @@ document.addEventListener('DOMContentLoaded', () => {
     submitButton.disabled = true;
     submitButton.textContent = 'Enviando...';
 
-    // Si la ruleta de exit-intent ya se giró en esta sesión (hasta 2 veces),
-    // se mandan los tokens firmados (nunca el prizeId "en crudo") para que
-    // el servidor los vuelva a verificar antes de aplicar cualquier premio.
+    // Si la ruleta de exit-intent ya se giró en esta sesión, se manda el
+    // token firmado (nunca el prizeId "en crudo") para que el servidor lo
+    // vuelva a verificar antes de aplicar cualquier premio.
     const wheelState = window.INTACTO_WHEEL_STATE || {};
 
     try {
@@ -65,8 +131,11 @@ document.addEventListener('DOMContentLoaded', () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           nombre,
+          apellidos,
           telefono,
           direccion,
+          direccion2,
+          departamento,
           ciudad,
           email,
           eventId,
