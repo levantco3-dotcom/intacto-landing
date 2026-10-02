@@ -39,61 +39,28 @@
   margin-top: 12px;
 }
 
-/* Video placeholder */
-
-.video-placeholder {
-  width: 100%;
-  max-width: 380px;
-  aspect-ratio: 9 / 16;
-  margin: 0 auto;
-  background-color: var(--carbon);
-  border-radius: 12px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-}
-
-.video-placeholder__play {
-  width: 72px;
-  height: 72px;
-  border-radius: 50%;
-  background-color: rgba(250, 247, 243, 0.15);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.video-placeholder__play-icon {
-  width: 0;
-  height: 0;
-  border-style: solid;
-  border-width: 14px 0 14px 22px;
-  border-color: transparent transparent transparent var(--blanco-calido);
-  margin-left: 4px;
-}
-
-.video-placeholder__label {
-  font-family: var(--font-body);
-  font-weight: 500;
-  font-size: 0.9rem;
-  color: var(--crema);
-}
-
-/* Antes / después */
+/* Materiales */
 
 .demo__materials {
-  margin-top: 56px;
+  margin-top: 0;
 }
 
-.demo__materials-title {
-  font-family: var(--font-body);
+.demo__materials-headline {
+  font-family: var(--font-display);
   font-weight: 700;
-  font-size: 1.375rem;
+  font-size: clamp(1.75rem, 5.5vw, 2.75rem);
   color: var(--carbon);
   text-align: center;
-  margin-bottom: 28px;
+}
+
+.demo__materials-subhead {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 1.0625rem;
+  color: var(--carbon-suave);
+  text-align: center;
+  max-width: 480px;
+  margin: 12px auto 28px;
 }
 
 .material-grid {

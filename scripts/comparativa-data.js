@@ -42,7 +42,7 @@ const COMPARATIVA_DATA = [
 
 const COMPARATIVA_INTACTO = {
   titulo: 'INTACTO',
-  img: 'assets/images/intacto-hero-01-kit.jpg.jpeg',
+  img: 'assets/images/intacto-hero-01-kit.webp',
   alt: 'Kit INTACTO',
   items: [
     { etiqueta: 'Tiempo', valor: '2 minutos' },
